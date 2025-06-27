@@ -3,4 +3,5 @@ node_modules
 pnpm-lock.yaml
 dist
 .vscode
-.env 
+.env \".env\"  
+\".env\"  
