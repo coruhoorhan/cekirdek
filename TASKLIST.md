@@ -20,19 +20,21 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
 
 *   **A. Temel Kimlik Doğrulama:**
     *   [x] Kullanıcı rolleri tanımlanacak (Admin, Öğretmen, Veli) - Supabase'de `profiles` tablosu `role` alanı ile oluşturuldu ve trigger ile `auth.users`'a bağlandı (Kullanıcı tarafından yapıldı).
-    *   [x] Kayıt olma (Sign Up) sayfası ve işlevselliği (e-posta/şifre ile).
+    *   [x] Kayıt olma (Sign Up) başvuru formu ve admin onay akışı (doğrudan Auth ile değil, başvuru + admin onay):
         *   [x] Kayıt formu UI (Shadcn/ui) (`SignUpPage.tsx` oluşturuldu).
-        *   [x] Supabase `signUp` entegrasyonu (`SignUpPage.tsx` içinde temel entegrasyon yapıldı).
-        *   [ ] Başarılı kayıt sonrası e-posta doğrulama akışı (Supabase varsayılan olarak yönetir, UI'da mesaj gösterildi).
+        *   [x] Başvuru formunda çoklu çocuk, cinsiyet, doğum tarihi, alerji, not, acil durum kişisi, ilaç ve fotoğraf alanları eklendi.
+        *   [x] Supabase'de başvuru (applications), çocuk (children), acil kişi (emergency_contacts), ilaç (medications) ve fotoğraf (storage) entegrasyonu yapıldı.
+        *   [x] Kayıt sonrası otomatik e-posta/OTP gönderimi yok, admin onayı bekleniyor.
+        *   [ ] Admin panelinde başvuruları onaylama ve onaylananları profiles tablosuna aktarma (temel haliyle eklendi, detaylandırılacak).
     *   [x] Giriş yapma (Sign In) sayfası ve işlevselliği (e-posta/şifre ile).
         *   [x] Giriş formu UI (`LoginPage.tsx` geliştirildi).
         *   [x] Supabase `signInWithPassword` entegrasyonu (`LoginPage.tsx` içinde temel entegrasyon yapıldı).
         *   [ ] Başarılı giriş sonrası kullanıcıyı rolüne göre doğru dashboard'a yönlendirme (`LoginPage.tsx` içinde TODO bırakıldı, `AuthContext` ile yapılacak).
     *   [x] Çıkış yapma (Sign Out) işlevselliği (`AuthContext` ve `Header.tsx` içinde eklendi).
-    *   [ ] Şifre sıfırlama (Forgot Password) akışı.
-        *   [ ] Şifre sıfırlama talep formu UI.
-        *   [ ] Supabase `resetPasswordForEmail` entegrasyonu.
-        *   [ ] Şifre güncelleme formu UI ve Supabase `updateUser` entegrasyonu.
+    *   [ ] Şifre sıfırlama (Forgot Password) akışı. (Henüz eklenmedi, yeni akışa göre planlanacak)
+        *   [ ] Şifre sıfırlama talep formu UI. (Henüz eklenmedi)
+        *   [ ] Supabase `resetPasswordForEmail` entegrasyonu. (Henüz eklenmedi)
+        *   [ ] Şifre güncelleme formu UI ve Supabase `updateUser` entegrasyonu. (Henüz eklenmedi)
     *   [x] Rol Tabanlı Erişim Kontrolü (RBAC) temelleri atılacak.
         *   [x] Frontend'de route korumaları (`ProtectedRoute.tsx` oluşturuldu ve `/admin` route'ları koruma altına alındı).
         *   [x] Supabase Row Level Security (RLS) politikalarının temel düzeyde planlanması (Kullanıcı tarafından `profiles` için yapıldı).
