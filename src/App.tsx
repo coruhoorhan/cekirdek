@@ -10,10 +10,13 @@ import News from './pages/News';
 import Contact from './pages/Contact';
 import './App.css';
 
+// Auth pages
+import LoginPage from './pages/auth/LoginPage'; // Yeni yol
+import SignUpPage from './pages/auth/SignUpPage'; // Yeni sayfa
+
 // Admin components
 import AdminLayout from './components/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
-import LoginPage from './pages/admin/LoginPage'; // LoginPage import edildi
 import HomePageSettings from './pages/admin/HomePageSettings'; // HomePageSettings import edildi
 import AboutPageSettings from './pages/admin/AboutPageSettings'; // AboutPageSettings import edildi
 import EducationPageSettings from './pages/admin/EducationPageSettings';
@@ -56,8 +59,12 @@ function App() {
           }
         />
 
+        {/* Auth Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/kayit-ol" element={<SignUpPage />} />
+
         {/* Admin Routes */}
-        <Route path="/admin/login" element={<LoginPage />} />
+        {/* <Route path="/admin/login" element={<LoginPage />} />  Bu route artık /login oldu */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="home-settings" element={<HomePageSettings />} />
