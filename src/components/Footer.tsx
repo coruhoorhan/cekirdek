@@ -16,7 +16,7 @@ const Footer = () => {
                 className="w-12 h-12 rounded-full"
               />
               <div>
-                <h3 className="text-xl font-bold">Çekirdek Gündüz Bakım Evi</h3>
+                <h3 className="text-lg font-bold">Çekirdek Gündüz Bakım Evi</h3>
                 <p className="text-green-200 text-sm">🌻 Çocuk merak ettiğinde, keşif doğar.</p>
               </div>
             </div>
