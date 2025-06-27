@@ -43,9 +43,8 @@ const SignUpPage: React.FC = () => {
       password: password,
       options: {
         data: {
-          full_name: fullName,
-          // role: 'parent' // Rolü burada veya kullanıcıya seçtirerek belirleyebiliriz.
-                           // Şimdilik varsayılan olarak Supabase tarafında (trigger ile) veya ilk girişte atanabilir.
+          name: fullName, // Supabase trigger'ın beklediği alan 'name' ise bunu gönder
+          // role: 'parent' // Eğer Supabase trigger'ı user_metadata'dan 'role' bekliyorsa açabilirsin
         }
       }
     });
@@ -59,8 +58,7 @@ const SignUpPage: React.FC = () => {
       // Supabase bazen bu durumda user nesnesini döndürür ama identities boş olur.
       setError("Bu e-posta adresi ile daha önce kayıt yapılmış ancak doğrulanmamış olabilir. Lütfen e-postanızı kontrol edin veya farklı bir e-posta deneyin.");
     } else if (data.user) {
-      setMessage("Kayıt başarılı! Lütfen e-posta adresinize gönderilen doğrulama linkine tıklayın.");
-      // Formu temizleyebilir veya kullanıcıyı bir sonraki adıma yönlendirebiliriz.
+      setMessage("Kayıt başarılı! Lütfen e-posta adresinize gönderilen doğrulama linkine tıklayın. Profiliniz birkaç saniye içinde oluşacaktır. Giriş yaptıktan sonra profiliniz görünmüyorsa, lütfen tekrar giriş yapmayı deneyin.");
       setFullName('');
       setEmail('');
       setPassword('');

@@ -16,6 +16,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  profileNotFound: boolean;
   // signIn fonksiyonu genellikle login sayfasında direkt supabase.auth.signInWithPassword ile çağrılır,
   // ama gerekirse buraya da eklenebilir.
 }
@@ -27,6 +28,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileNotFound, setProfileNotFound] = useState(false);
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
@@ -80,23 +82,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (error) {
         console.error('Error fetching user profile:', error.message);
         setProfile(null);
-        // Kullanıcı yeni kaydolmuş ve trigger henüz çalışmamış olabilir,
-        // ya da RLS engelliyor olabilir (ama kendi profilini okuyabilmeli).
-        // Bu durumu loglamak iyi olur.
         if (error.code === 'PGRST116' || error.message.includes("relation \"profiles\" does not exist")) {
             console.warn("Profile not found or 'profiles' table does not exist. This might be a new user or an RLS issue.");
+            setProfileNotFound(true);
         }
         return;
       }
       if (data) {
         setProfile(data as UserProfile);
+        setProfileNotFound(false);
       } else {
         setProfile(null);
+        setProfileNotFound(true);
         console.warn(`No profile found for user ID: ${userId}`);
       }
     } catch (e) {
       console.error('Unexpected error fetching profile:', e);
       setProfile(null);
+      setProfileNotFound(true);
     }
   };
 
@@ -117,6 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     profile,
     loading,
     signOut,
+    profileNotFound,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

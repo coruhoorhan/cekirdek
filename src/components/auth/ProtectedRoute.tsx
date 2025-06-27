@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, profileNotFound } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -25,6 +25,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
     // Kullanıcı giriş yapmamışsa, login sayfasına yönlendir.
     // Yönlendirme sonrası geri dönebilmesi için mevcut konumu state olarak ekle.
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (user && !profile && profileNotFound) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-lg font-medium text-gray-700">Profiliniz henüz oluşmadı veya yüklenemedi. Lütfen birkaç saniye bekleyin veya tekrar giriş yapmayı deneyin.</p>
+      </div>
+    );
   }
 
   if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
