@@ -1,8 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Sabit URL ve anahtar tanımla
-const supabaseUrl = "https://uunmmuybfcqiyxbnncjj.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bm1tdXliZmNxaXl4Ym5uY2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMDA0MTIsImV4cCI6MjA2NjU3NjQxMn0.jp9LSv7iSc_W7bQkuhXYLWm6ngTZBe11uH8hsVKTYX4";
+// Ortam değişkenlerinden URL ve anahtarı al
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Değişkenlerin varlığını kontrol et
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase URL and Anon Key must be defined in the .env file");
+}
 
 // Supabase istemcisi oluştur
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

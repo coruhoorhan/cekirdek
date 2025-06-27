@@ -98,33 +98,25 @@ const SignUpPage: React.FC = () => {
       console.log("Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
       console.log("Supabase Key:", import.meta.env.VITE_SUPABASE_ANON_KEY ? "Mevcut" : "Eksik");
       
-      // Doğrudan fetch kullanarak veri ekle
-      const directResponse = await fetch('https://uunmmuybfcqiyxbnncjj.supabase.co/rest/v1/applications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bm1tdXliZmNxaXl4Ym5uY2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMDA0MTIsImV4cCI6MjA2NjU3NjQxMn0.jp9LSv7iSc_W7bQkuhXYLWm6ngTZBe11uH8hsVKTYX4',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bm1tdXliZmNxaXl4Ym5uY2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMDA0MTIsImV4cCI6MjA2NjU3NjQxMn0.jp9LSv7iSc_W7bQkuhXYLWm6ngTZBe11uH8hsVKTYX4',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({
-          email,
-          name: fullName,
-          phone,
-          status: 'pending',
-        })
-      });
+      // 1. Ana başvuru kaydını ekle
+      const { data: appData, error: appError } = await supabase
+        .from('applications')
+        .insert([
+          {
+            email,
+            name: fullName,
+            phone,
+            status: 'pending',
+          },
+        ])
+        .select();
 
-      if (!directResponse.ok) {
-        const errorText = await directResponse.text();
-        console.error("Direct API error:", errorText);
+      if (appError) {
+        console.error("Supabase application insert error:", appError);
         setLoading(false);
-        setError(`API Hatası: ${directResponse.status} ${directResponse.statusText}`);
+        setError(`Başvuru gönderilirken hata oluştu: ${appError.message}`);
         return;
       }
-
-      const appData = await directResponse.json();
-      console.log("Direct API success:", appData);
       
       if (!appData || appData.length === 0) {
         console.error("No application data returned");
