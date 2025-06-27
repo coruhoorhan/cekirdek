@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiPhone, FiMenu, FiX, LogIn, UserPlus, LogOut, User } from 'react-icons/fi';
+import { FiPhone, FiMenu, FiX } from 'react-icons/fi'; // Sadece Fi ikonları burada kalacak
+import { LogIn, UserPlus, LogOut, User } from 'lucide-react'; // Auth ikonları lucide-react'ten
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext'; // AuthContext import
 import { Button } from '@/components/ui/button'; // Shadcn Button

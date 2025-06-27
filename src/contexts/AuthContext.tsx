@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     return () => {
-      authListener?.unsubscribe();
+      authListener?.subscription.unsubscribe(); // Doğru unsubscribe metodu
     };
   }, []);
 
@@ -83,8 +83,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Kullanıcı yeni kaydolmuş ve trigger henüz çalışmamış olabilir,
         // ya da RLS engelliyor olabilir (ama kendi profilini okuyabilmeli).
         // Bu durumu loglamak iyi olur.
-        if (error.code === 'PGRST116') { // "Relationship 'profiles' not found" veya "Table 'profiles' does not exist" gibi
-            console.warn("Profile not found, maybe it's a new user or RLS issue for 'profiles' table.");
+        if (error.code === 'PGRST116' || error.message.includes("relation \"profiles\" does not exist")) {
+            console.warn("Profile not found or 'profiles' table does not exist. This might be a new user or an RLS issue.");
         }
         return;
       }
@@ -101,13 +101,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const signOut = async () => {
-    setLoading(true);
+    // setLoading(true); // Opsiyonel: çıkış işlemi çok hızlı olduğu için anlık bir loading state değişimi fark edilmeyebilir.
+                        // Eğer çıkış sonrası yönlendirme veya başka async işlemler varsa eklenebilir.
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Error signing out:', error.message);
     }
     // onAuthStateChange listener geri kalanı halledecek (session, user, profile'ı null yapacak)
-    // setLoading(false); // onAuthStateChange içinde yönetiliyor.
+    // ve setLoading(false) yapacak.
   };
 
   const value = {
