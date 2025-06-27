@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Navigate import edildi
 import Header from './components/Header';
 import Footer from './components/Footer';
 import { AuthProvider } from './contexts/AuthContext'; // AuthProvider import edildi
+import ProtectedRoute from './components/auth/ProtectedRoute'; // ProtectedRoute import edildi
 import Home from './pages/Home';
 import About from './pages/About';
 import Education from './pages/Education';
@@ -36,9 +37,6 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => (
     <Footer />
   </div>
 );
-
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import { Navigate } from 'react-router-dom';
 
 function App() {
   return (
