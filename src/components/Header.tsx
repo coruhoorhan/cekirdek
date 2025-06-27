@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FiPhone, FiMenu, FiX, LogIn, UserPlus, LogOut, User } from 'react-icons/fi';
+import { FiPhone, FiMenu, FiX, FiLogIn, FiUserPlus, FiLogOut, FiUser } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext'; // AuthContext import
 import { Button } from '@/components/ui/button'; // Shadcn Button
@@ -96,14 +96,14 @@ const Header = () => {
             {!loading && user ? (
               <div className="hidden lg:flex items-center space-x-3">
                 <span className="text-sm text-gray-700 flex items-center">
-                  <User className="w-4 h-4 mr-1 text-green-600" />
+                  <FiUser className="w-4 h-4 mr-1 text-green-600" />
                   {profile?.name || user.email}
                 </span>
                 <Button variant="outline" size="sm" onClick={async () => {
                   await signOut();
                   navigate('/'); // Anasayfaya yönlendir
                 }}>
-                  <LogOut className="w-4 h-4 mr-1" />
+                  <FiLogOut className="w-4 h-4 mr-1" />
                   Çıkış Yap
                 </Button>
               </div>
@@ -111,13 +111,13 @@ const Header = () => {
               <div className="hidden lg:flex items-center space-x-3">
                 <Button variant="outline" size="sm" asChild>
                   <Link to="/login">
-                    <LogIn className="w-4 h-4 mr-1" />
+                    <FiLogIn className="w-4 h-4 mr-1" />
                     Giriş Yap
                   </Link>
                 </Button>
                 <Button size="sm" asChild className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white">
                   <Link to="/kayit-ol">
-                    <UserPlus className="w-4 h-4 mr-1" />
+                    <FiUserPlus className="w-4 h-4 mr-1" />
                     Kayıt Ol
                   </Link>
                 </Button>
@@ -168,7 +168,7 @@ const Header = () => {
                       setIsMenuOpen(false);
                       navigate('/');
                     }}>
-                      <LogOut className="w-4 h-4 mr-2" />
+                      <FiLogOut className="w-4 h-4 mr-2" />
                       Çıkış Yap
                     </Button>
                   </>
@@ -176,13 +176,13 @@ const Header = () => {
                   <>
                     <Button variant="outline" className="w-full" asChild>
                       <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                        <LogIn className="w-4 h-4 mr-2" />
+                        <FiLogIn className="w-4 h-4 mr-2" />
                         Giriş Yap
                       </Link>
                     </Button>
                     <Button className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white" asChild>
                       <Link to="/kayit-ol" onClick={() => setIsMenuOpen(false)}>
-                        <UserPlus className="w-4 h-4 mr-2" />
+                        <FiUserPlus className="w-4 h-4 mr-2" />
                         Kayıt Ol
                       </Link>
                     </Button>

@@ -37,6 +37,9 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { Navigate } from 'react-router-dom';
+
 function App() {
   return (
     <Router>

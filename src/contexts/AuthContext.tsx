@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
 
     return () => {
-      authListener?.unsubscribe();
+      authListener?.data?.unsubscribe();
     };
   }, []);
 
