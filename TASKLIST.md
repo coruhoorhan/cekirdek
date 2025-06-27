@@ -274,7 +274,7 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
 *   **E. Çok Dilli Destek (Opsiyonel - Başlangıç için Türkçe):**
     *   [ ] i18n kütüphanesi (örn: `react-i18next`) entegrasyonu için altyapı.
 *   **F. Güvenlik:**
-    *   [ ] Supabase RLS politikalarının tüm tablolarda detaylı bir şekilde uygulanması.
+    *   [x] Supabase RLS politikalarının tüm tablolarda detaylı bir şekilde uygulanması ve performans/güvenlik optimizasyonları (auth fonksiyonları select ile çağrıldı, function search_path sabitlendi).
     *   [ ] API isteklerinde yetkilendirme kontrolleri.
     *   [ ] XSS, CSRF gibi temel web zafiyetlerine karşı önlemler.
     *   [ ] Hassas verilerin (örn: API keyleri) güvenli saklanması.
