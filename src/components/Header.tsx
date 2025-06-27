@@ -1,10 +1,14 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { FiPhone, FiMenu, FiX } from 'react-icons/fi'
-import { motion } from 'framer-motion'
+import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FiPhone, FiMenu, FiX, LogIn, UserPlus, LogOut, User } from 'react-icons/fi';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext'; // AuthContext import
+import { Button } from '@/components/ui/button'; // Shadcn Button
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, profile, signOut, loading } = useAuth(); // AuthContext'ten kullanıcı bilgilerini al
+  const navigate = useNavigate();
   const location = useLocation()
 
   const navItems = [
@@ -87,15 +91,38 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* CTA Button & Mobile Menu */}
-          <div className="flex items-center space-x-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden md:block bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-full font-bold shadow-lg hover:shadow-xl transition-all"
-            >
-              Ön Kayıt
-            </motion.button>
+          {/* CTA Button, Auth Links & Mobile Menu */}
+          <div className="flex items-center space-x-3">
+            {!loading && user ? (
+              <div className="hidden lg:flex items-center space-x-3">
+                <span className="text-sm text-gray-700 flex items-center">
+                  <User className="w-4 h-4 mr-1 text-green-600" />
+                  {profile?.name || user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  await signOut();
+                  navigate('/'); // Anasayfaya yönlendir
+                }}>
+                  <LogOut className="w-4 h-4 mr-1" />
+                  Çıkış Yap
+                </Button>
+              </div>
+            ) : !loading ? (
+              <div className="hidden lg:flex items-center space-x-3">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/login">
+                    <LogIn className="w-4 h-4 mr-1" />
+                    Giriş Yap
+                  </Link>
+                </Button>
+                <Button size="sm" asChild className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white">
+                  <Link to="/kayit-ol">
+                    <UserPlus className="w-4 h-4 mr-1" />
+                    Kayıt Ol
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
             
             {/* Mobile Menu Button */}
             <button
@@ -130,14 +157,47 @@ const Header = () => {
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-4 border-t border-green-100">
-                <div className="flex items-center justify-center space-x-2 text-green-600 mb-3">
-                  <FiPhone className="w-4 h-4" />
-                  <span className="font-medium">0532 123 45 67</span>
+              <div className="pt-4 mt-2 border-t border-green-100 space-y-3">
+                {!loading && user ? (
+                  <>
+                    <div className="px-4 py-2 text-sm text-gray-700">
+                      Merhaba, {profile?.name || user.email}
+                    </div>
+                    <Button variant="outline" className="w-full" onClick={async () => {
+                      await signOut();
+                      setIsMenuOpen(false);
+                      navigate('/');
+                    }}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Çıkış Yap
+                    </Button>
+                  </>
+                ) : !loading ? (
+                  <>
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Giriş Yap
+                      </Link>
+                    </Button>
+                    <Button className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white" asChild>
+                      <Link to="/kayit-ol" onClick={() => setIsMenuOpen(false)}>
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Kayıt Ol
+                      </Link>
+                    </Button>
+                  </>
+                ) : null}
+                <div className="pt-4 border-t border-green-100">
+                  <div className="flex items-center justify-center space-x-2 text-green-600 mb-3">
+                    <FiPhone className="w-4 h-4" />
+                    <span className="font-medium">0532 123 45 67</span>
+                  </div>
+                  {/* Ön Kayıt butonu mobil menüde kalabilir veya kaldırılabilir, auth linkleri daha öncelikli. */}
+                  {/* <button className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-lg font-bold shadow-lg">
+                    Ön Kayıt
+                  </button> */}
                 </div>
-                <button className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3 rounded-lg font-bold shadow-lg">
-                  Ön Kayıt
-                </button>
               </div>
             </div>
           </motion.nav>

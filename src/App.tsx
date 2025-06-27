@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Header from './components/Header'
-import Footer from './components/Footer'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import { AuthProvider } from './contexts/AuthContext'; // AuthProvider import edildi
 import Home from './pages/Home';
 import About from './pages/About';
 import Education from './pages/Education';
@@ -39,9 +40,10 @@ const SiteLayout = ({ children }: { children: React.ReactNode }) => (
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Site Routes */}
-        <Route
+      <AuthProvider> {/* AuthProvider ile tüm uygulamayı sarmala */}
+        <Routes>
+          {/* Site Routes */}
+          <Route
           path="/*"
           element={
             <SiteLayout>
@@ -63,9 +65,16 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/kayit-ol" element={<SignUpPage />} />
 
-        {/* Admin Routes */}
-        {/* <Route path="/admin/login" element={<LoginPage />} />  Bu route artık /login oldu */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Admin Routes - Protected */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} /> {/* /admin için varsayılan */}
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="home-settings" element={<HomePageSettings />} />
           <Route path="about-settings" element={<AboutPageSettings />} />
@@ -74,10 +83,9 @@ function App() {
           <Route path="news-settings" element={<NewsPageSettings />} />
           <Route path="teachers-settings" element={<TeachersPageSettings />} />
           <Route path="contact-settings" element={<ContactPageSettings />} />
-          {/* Admin paneli için varsayılan sayfa (opsiyonel) */}
-          <Route index element={<DashboardPage />} />
         </Route>
       </Routes>
+      </AuthProvider>
     </Router>
   );
 }

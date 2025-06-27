@@ -29,13 +29,25 @@ const LoginPage: React.FC = () => {
     if (signInError) {
       setError(signInError.message);
     } else if (data.user) {
-      // Giriş başarılı!
-      // TODO: Rol bazlı yönlendirme burada yapılacak.
-      // Şimdilik varsayılan olarak admin dashboard'a yönlendirelim.
-      // Kullanıcının rolünü data.user.user_metadata.role veya profiles tablosundan çekmemiz gerekecek.
-      console.log('Giriş başarılı:', data.user);
-      // Örnek: navigate(data.user.user_metadata?.role === 'admin' ? '/admin/dashboard' : '/veli/dashboard');
-      navigate('/admin/dashboard'); // Geçici yönlendirme
+      // Giriş başarılı! AuthContext'in profile state'i onAuthStateChange ile güncellenecek.
+      // Yönlendirmeyi AuthContext'teki profile bilgisi yüklendikten sonra yapmak daha doğru olur.
+      // Şimdilik, AuthContext'in güncellenmesini bekleyip App.tsx'de bir ana yönlendirici ile yapılabilir
+      // ya da burada profile'ı direkt çekmeyi deneyebiliriz (ama context zaten yapacak).
+      // En temizi, bir sonraki renderda AuthContext'ten gelen profile'a göre yönlendirme yapmak.
+      // Bu yüzden burada direkt navigate('/admin/dashboard') kalabilir,
+      // ve App.tsx veya korumalı bir layout içinde rol kontrolü ve yönlendirme yapılabilir.
+      // VEYA: AuthContext'e bir login fonksiyonu ekleyip, o fonksiyon içinde profil çekildikten sonra yönlendirme yapılabilir.
+      // Şimdilik basit tutalım: Giriş başarılıysa, kullanıcıyı ana sayfaya yönlendirip,
+      // Ana sayfada (veya App.tsx'de) rolüne göre ilgili dashboard'a yönlendirme yapılabilir.
+      // Ya da AuthContext'in yüklenmesini bekleyip yönlendirme yapalım.
+      // navigate('/'); // Kullanıcıyı ana sayfaya yönlendir, App.tsx rol bazlı yönlendirmeyi yapsın
+      // VEYA burada AuthContext'i kullanıp profile'ı bekleyebiliriz.
+      // Şimdilik sadece admin paneline yönlendirme yapalım, bu kısım AuthContext ile daha iyi yönetilecek.
+      console.log('Giriş başarılı, yönlendirme yapılacak:', data.user);
+      // AuthProvider zaten profili çekecek. Yönlendirmeyi Header veya App seviyesinde yapmak daha mantıklı.
+      // Ancak hızlı bir çözüm için burada da yapılabilir.
+      // Şimdilik admin'e yönlendiriyoruz, bu daha sonra AuthContext ile düzeltilecek.
+      navigate('/admin/dashboard');
     } else {
       setError("Giriş sırasında beklenmedik bir sorun oluştu.");
     }

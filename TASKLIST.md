@@ -9,33 +9,36 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
 *   [x] Temel admin paneli layout'u (Sidebar, Header, Content Area) oluşturuldu.
 *   [x] Admin paneli için temel routing yapısı (`react-router-dom`) kuruldu.
 *   [x] `vercel.json` ile Vercel SPA yönlendirme yapılandırması eklendi.
-*   [ ] Supabase projesi oluşturulacak ve temel ayarlar yapılacak.
-    *   [ ] Yeni Supabase projesi oluşturma.
-    *   [ ] Proje API anahtarları ve URL'lerinin güvenli bir şekilde saklanması (`.env`).
-    *   [ ] Supabase JavaScript client kütüphanesinin projeye entegrasyonu.
-*   [ ] `TEKNOLOJI.md` dosyası oluşturuldu ve güncel tutulacak.
-*   [ ] Bu `TASKLIST.md` dosyası oluşturuldu ve güncel tutulacak.
+*   [x] Supabase projesi oluşturulacak ve temel ayarlar yapılacak. (Kullanıcı tarafından proje oluşturuldu, anahtarlar paylaşıldı)
+    *   [x] Yeni Supabase projesi oluşturma. (Kullanıcı tarafından yapıldı)
+    *   [x] Proje API anahtarları ve URL'lerinin güvenli bir şekilde saklanması (`.env`). (Yapıldı)
+    *   [x] Supabase JavaScript client kütüphanesinin projeye entegrasyonu. (package.json güncellendi, client helper oluşturuldu)
+*   [x] `TEKNOLOJI.md` dosyası oluşturuldu ve güncel tutulacak. (Oluşturuldu)
+*   [x] Bu `TASKLIST.md` dosyası oluşturuldu ve güncel tutulacak. (Oluşturuldu)
 
 ## ①. Kimlik Doğrulama ve Kullanıcı Yönetimi (Supabase Auth)
 
 *   **A. Temel Kimlik Doğrulama:**
-    *   [ ] Kullanıcı rolleri tanımlanacak (Admin, Öğretmen, Veli) - Supabase'de `users` tablosuna `role` alanı eklenecek.
-    *   [ ] Kayıt olma (Sign Up) sayfası ve işlevselliği (e-posta/şifre ile).
-        *   [ ] Kayıt formu UI (Shadcn/ui).
-        *   [ ] Supabase `signUp` entegrasyonu.
-        *   [ ] Başarılı kayıt sonrası e-posta doğrulama akışı.
-    *   [ ] Giriş yapma (Sign In) sayfası ve işlevselliği (e-posta/şifre ile).
-        *   [x] Giriş formu UI (Mevcut `LoginPage.tsx` geliştirilecek).
-        *   [ ] Supabase `signInWithPassword` entegrasyonu.
-        *   [ ] Başarılı giriş sonrası kullanıcıyı rolüne göre doğru dashboard'a yönlendirme.
-    *   [ ] Çıkış yapma (Sign Out) işlevselliği.
+    *   [x] Kullanıcı rolleri tanımlanacak (Admin, Öğretmen, Veli) - Supabase'de `profiles` tablosu `role` alanı ile oluşturuldu ve trigger ile `auth.users`'a bağlandı (Kullanıcı tarafından yapıldı).
+    *   [x] Kayıt olma (Sign Up) sayfası ve işlevselliği (e-posta/şifre ile).
+        *   [x] Kayıt formu UI (Shadcn/ui) (`SignUpPage.tsx` oluşturuldu).
+        *   [x] Supabase `signUp` entegrasyonu (`SignUpPage.tsx` içinde temel entegrasyon yapıldı).
+        *   [ ] Başarılı kayıt sonrası e-posta doğrulama akışı (Supabase varsayılan olarak yönetir, UI'da mesaj gösterildi).
+    *   [x] Giriş yapma (Sign In) sayfası ve işlevselliği (e-posta/şifre ile).
+        *   [x] Giriş formu UI (`LoginPage.tsx` geliştirildi).
+        *   [x] Supabase `signInWithPassword` entegrasyonu (`LoginPage.tsx` içinde temel entegrasyon yapıldı).
+        *   [ ] Başarılı giriş sonrası kullanıcıyı rolüne göre doğru dashboard'a yönlendirme (`LoginPage.tsx` içinde TODO bırakıldı, `AuthContext` ile yapılacak).
+    *   [x] Çıkış yapma (Sign Out) işlevselliği (`AuthContext` ve `Header.tsx` içinde eklendi).
     *   [ ] Şifre sıfırlama (Forgot Password) akışı.
         *   [ ] Şifre sıfırlama talep formu UI.
         *   [ ] Supabase `resetPasswordForEmail` entegrasyonu.
         *   [ ] Şifre güncelleme formu UI ve Supabase `updateUser` entegrasyonu.
-    *   [ ] Rol Tabanlı Erişim Kontrolü (RBAC) temelleri atılacak.
-        *   [ ] Frontend'de route korumaları (örneğin, veli sadece veli paneline, admin sadece admin paneline erişebilir).
-        *   [ ] Supabase Row Level Security (RLS) politikalarının temel düzeyde planlanması.
+    *   [x] Rol Tabanlı Erişim Kontrolü (RBAC) temelleri atılacak.
+        *   [x] Frontend'de route korumaları (`ProtectedRoute.tsx` oluşturuldu ve `/admin` route'ları koruma altına alındı).
+        *   [x] Supabase Row Level Security (RLS) politikalarının temel düzeyde planlanması (Kullanıcı tarafından `profiles` için yapıldı).
+    *   [x] Auth Context Oluşturma (`src/contexts/AuthContext.tsx`) (Yapıldı).
+    *   [x] `App.tsx`'i AuthProvider ile Sarmalama (Yapıldı).
+    *   [x] Header'da Kullanıcı Bilgisi ve Logout Butonu (Yapıldı).
 *   **B. Admin Paneli - Kullanıcı Yönetimi:**
     *   [ ] Kullanıcıları (Admin, Öğretmen, Veli) listeleme arayüzü.
         *   [ ] Filtreleme (role, isme göre vb.) ve arama.
