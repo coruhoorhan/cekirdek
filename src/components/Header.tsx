@@ -55,11 +55,11 @@ const Header = () => {
               className="w-12 h-12 md:w-16 md:h-16 rounded-full shadow-md"
             />
             <div className="hidden sm:block">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-                Çekirdek Anaokulu
+              <h1 className="text-xs md:text-sm font-bold text-gray-800">
+                Çekirdek Anaokulu Gündüz Bakımevi
               </h1>
               <p className="text-xs md:text-sm text-green-600 font-medium">
-                Seçkin Eğitimle Büyüyoruz
+                🌻 Çocuk merak ettiğinde, keşif doğar.
               </p>
             </div>
           </Link>
