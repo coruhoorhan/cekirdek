@@ -26,10 +26,22 @@ const formatCleanUrl = (baseUrl: string, path: string): string => {
  */
 export const sendPasswordSetupEmail = async (email: string, name: string): Promise<{success: boolean, error?: string}> => {
   try {
+    // E-posta adresini temizle
+    const cleanEmail = email.trim().toLowerCase();
+
+    // E-posta format kontrolü
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return {
+        success: false,
+        error: `Geçersiz e-posta formatı: ${cleanEmail}`
+      };
+    }
+
     // Temiz URL oluştur
     const redirectUrl = formatCleanUrl(window.location.origin, 'velisifre');
-    
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
       redirectTo: redirectUrl
     });
 
@@ -41,7 +53,7 @@ export const sendPasswordSetupEmail = async (email: string, name: string): Promi
       };
     }
 
-    console.log(`Şifre belirleme e-postası başarıyla gönderildi: ${email}. Yönlendirme adresi: ${redirectUrl}`);
+    console.log(`Şifre belirleme e-postası başarıyla gönderildi: ${cleanEmail}. Yönlendirme adresi: ${redirectUrl}`);
     return { success: true };
   } catch (err) {
     console.error("Beklenmeyen bir hata oluştu:", err);

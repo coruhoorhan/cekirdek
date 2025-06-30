@@ -27,6 +27,8 @@ import GalleryPageSettings from './pages/admin/GalleryPageSettings';
 import NewsPageSettings from './pages/admin/NewsPageSettings';
 import TeachersPageSettings from './pages/admin/TeachersPageSettings';
 import ContactPageSettings from './pages/admin/ContactPageSettings';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import DataConsistencyPage from '@/pages/admin/DataConsistencyPage';
 
 // Auth components
 import { AuthProvider } from './contexts/AuthContext';
@@ -94,6 +96,8 @@ function App() {
           <Route path="news-settings" element={<NewsPageSettings />} />
           <Route path="teachers-settings" element={<TeachersPageSettings />} />
           <Route path="contact-settings" element={<ContactPageSettings />} />
+          <Route path="user-management" element={<UserManagementPage />} />
+          <Route path="data-consistency" element={<DataConsistencyPage />} />
         </Route>
       </Routes>
       </AuthProvider>

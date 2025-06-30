@@ -86,19 +86,48 @@ const DashboardPage: React.FC = () => {
   const handleApprove = async (app: Application) => {
     setLoading(true);
     setError(null);
-    
+
     try {
+      // E-posta adresini temizle (trim ve format kontrolü)
+      const cleanEmail = app.email.trim().toLowerCase();
+
+      // E-posta format kontrolü
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        toast({
+          title: "E-posta format hatası",
+          description: `Geçersiz e-posta formatı: ${cleanEmail}`,
+          variant: "destructive"
+        });
+        setError(`Geçersiz e-posta formatı: ${cleanEmail}`);
+        setLoading(false);
+        return;
+      }
+
+      // Önce applications tablosundaki e-posta adresini güncelle
+      const { error: updateEmailError } = await supabase
+        .from('applications')
+        .update({ email: cleanEmail })
+        .eq('id', app.id);
+
+      if (updateEmailError) {
+        console.error('E-posta güncelleme hatası:', updateEmailError);
+      }
+
       const cleanOrigin = window.location.origin.replace(/\s+$/, '');
-      
+
+      // Güçlü geçici şifre oluştur
+      const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase() + '123!';
+
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: app.email,
-        password: Math.random().toString(36).slice(-12),
+        email: cleanEmail,
+        password: tempPassword,
         options: {
           data: {
             full_name: app.name,
             role: 'parent'
           },
-          emailRedirectTo: undefined
+          emailRedirectTo: `${cleanOrigin}/velisifre`
         }
       });
 
@@ -111,6 +140,18 @@ const DashboardPage: React.FC = () => {
         setError('Kullanıcı oluşturulamadı: ' + authError.message);
         setLoading(false);
         return;
+      }
+
+      // Kullanıcı başarıyla oluşturulduysa, profile'daki name alanını güncelle
+      if (authData.user) {
+        const { error: profileUpdateError } = await supabase
+          .from('profiles')
+          .update({ name: app.name })
+          .eq('id', authData.user.id);
+
+        if (profileUpdateError) {
+          console.error('Profile name güncelleme hatası:', profileUpdateError);
+        }
       }
 
       const { error: updateError } = await supabase
@@ -274,14 +315,25 @@ const DashboardPage: React.FC = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           {app.status === 'pending' && (
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleApprove(app)} 
-                              disabled={loading}
-                            >
-                              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-                              Onayla
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleApprove(app)}
+                                disabled={loading}
+                              >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                                Onayla
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleReject(app)}
+                                disabled={loading}
+                              >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                                Reddet
+                              </Button>
+                            </div>
                           )}
                         </TableCell>
                       </TableRow>
