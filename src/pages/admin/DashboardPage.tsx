@@ -4,6 +4,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Home, Info, Settings, Newspaper, Image, Users, BarChart2, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
+import { sendPasswordSetupEmail } from '@/lib/emailService';
+import { useToast } from "@/hooks/use-toast";
 
 const quickLinks = [
   { to: '/admin/home-settings', icon: <Home className="w-6 h-6 text-primary" />, title: 'Anasayfa Yönetimi', description: 'Hero, değerler, branşlar vb. yönetin.' },
@@ -28,6 +30,7 @@ const DashboardPage: React.FC = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchApplications();
@@ -49,31 +52,118 @@ const DashboardPage: React.FC = () => {
   const handleApprove = async (app: Application) => {
     setLoading(true);
     setError(null);
-    // 1. profiles tablosuna ekle
-    const { error: profileError } = await supabase.from('profiles').insert([
-      {
-        id: app.email, // veya uygun bir id üretimi, eğer email id değilse
-        name: app.name,
-        role: 'parent',
-      },
-    ]);
-    if (profileError) {
-      setError('Profil eklenemedi: ' + profileError.message);
+    
+    try {
+      // 1. Supabase Auth'da kullanıcı oluştur
+      const { error: authError } = await supabase.auth.signUp({
+        email: app.email,
+        password: Math.random().toString(36).slice(-12), // Geçici şifre (nasılsa sıfırlanacak)
+        options: {
+          data: {
+            full_name: app.name,
+            role: 'parent'
+          }
+        }
+      });
+
+      if (authError) {
+        toast({
+          title: "Kullanıcı oluşturma hatası",
+          description: authError.message,
+          variant: "destructive"
+        });
+        setError('Kullanıcı oluşturulamadı: ' + authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Başvurunun status'unu 'approved' yap
+      const { error: updateError } = await supabase
+        .from('applications')
+        .update({ status: 'approved' })
+        .eq('id', app.id);
+        
+      if (updateError) {
+        toast({
+          title: "Başvuru güncelleme hatası",
+          description: updateError.message,
+          variant: "destructive"
+        });
+        setError('Başvuru güncellenemedi: ' + updateError.message);
+        setLoading(false);
+        return;
+      }
+
+      // 3. E-posta gönder
+      const emailResult = await sendPasswordSetupEmail(app.email, app.name);
+      if (!emailResult.success) {
+        toast({
+          title: "E-posta gönderme uyarısı",
+          description: emailResult.error || "E-posta gönderilirken bir sorun oluştu",
+          variant: "warning"
+        });
+      } else {
+        toast({
+          title: "Başarılı",
+          description: `${app.name} başvurusu onaylandı ve şifre belirleme e-postası gönderildi.`,
+          variant: "default"
+        });
+      }
+      
+      // 4. Uygulamayı güncelle
+      fetchApplications();
+    } catch (err) {
+      console.error("Onaylama işlemi sırasında hata:", err);
+      const errorMessage = err instanceof Error ? err.message : "Bilinmeyen hata";
+      toast({
+        title: "İşlem hatası",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      setError(`Onaylama işlemi sırasında hata oluştu: ${errorMessage}`);
+    } finally {
       setLoading(false);
-      return;
     }
-    // 2. Başvurunun status'unu 'approved' yap
-    await supabase.from('applications').update({ status: 'approved' }).eq('id', app.id);
-    fetchApplications();
-    setLoading(false);
   };
 
   const handleReject = async (app: Application) => {
     setLoading(true);
     setError(null);
-    await supabase.from('applications').update({ status: 'rejected' }).eq('id', app.id);
-    fetchApplications();
-    setLoading(false);
+    try {
+      const { error: rejectError } = await supabase
+        .from('applications')
+        .update({ status: 'rejected' })
+        .eq('id', app.id);
+        
+      if (rejectError) {
+        toast({
+          title: "Başvuru reddetme hatası",
+          description: rejectError.message,
+          variant: "destructive"
+        });
+        setError('Başvuru reddedilemedi: ' + rejectError.message);
+        return;
+      }
+      
+      toast({
+        title: "Başarılı",
+        description: `${app.name} başvurusu reddedildi.`,
+        variant: "default"
+      });
+      
+      fetchApplications();
+    } catch (err) {
+      console.error("Reddetme işlemi sırasında hata:", err);
+      const errorMessage = err instanceof Error ? err.message : "Bilinmeyen hata";
+      toast({
+        title: "İşlem hatası",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      setError(`Reddetme işlemi sırasında hata oluştu: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

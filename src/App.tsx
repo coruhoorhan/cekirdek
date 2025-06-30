@@ -15,6 +15,7 @@ import './App.css';
 // Auth pages
 import LoginPage from './pages/auth/LoginPage'; // Yeni yol
 import SignUpPage from './pages/auth/SignUpPage'; // Yeni sayfa
+import SetPasswordPage from './pages/auth/SetPasswordPage'; // Şifre oluşturma sayfası
 
 // Admin components
 import AdminLayout from './components/admin/AdminLayout';
@@ -65,6 +66,7 @@ function App() {
         {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/kayit-ol" element={<SignUpPage />} />
+        <Route path="/velisifre" element={<SetPasswordPage />} />
 
         {/* Admin Routes - Protected */}
         <Route
