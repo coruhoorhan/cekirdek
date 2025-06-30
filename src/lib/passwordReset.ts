@@ -19,29 +19,28 @@ const formatCleanUrl = (baseUrl: string, path: string): string => {
 };
 
 /**
- * Veli kaydı onaylandığında şifre belirleme e-postası gönderir
- * @param email - Veli e-posta adresi
- * @param name - Velinin adı 
+ * Belirtilen e-posta adresine şifre sıfırlama linki gönderir
+ * @param email Şifre sıfırlanacak e-posta adresi
  * @returns Promise<{success: boolean, error?: string}>
  */
-export const sendPasswordSetupEmail = async (email: string, name: string): Promise<{success: boolean, error?: string}> => {
+export const sendPasswordResetEmail = async (email: string): Promise<{success: boolean, error?: string}> => {
   try {
     // Temiz URL oluştur
-    const redirectUrl = formatCleanUrl(window.location.origin, 'velisifre');
+    const redirectUrl = formatCleanUrl(window.location.origin, 'sifreyenileme');
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl
     });
 
     if (error) {
-      console.error("Şifre belirleme e-postası gönderilirken hata:", error);
+      console.error("Şifre sıfırlama e-postası gönderilirken hata:", error);
       return { 
         success: false, 
         error: `E-posta gönderilirken bir hata oluştu: ${error.message}` 
       };
     }
 
-    console.log(`Şifre belirleme e-postası başarıyla gönderildi: ${email}. Yönlendirme adresi: ${redirectUrl}`);
+    console.log(`Şifre sıfırlama e-postası başarıyla gönderildi: ${email}. Yönlendirme adresi: ${redirectUrl}`);
     return { success: true };
   } catch (err) {
     console.error("Beklenmeyen bir hata oluştu:", err);

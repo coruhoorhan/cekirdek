@@ -81,7 +81,12 @@ const LoginPage: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Şifre</Label>
+              <div className="flex justify-between items-center">
+                <Label htmlFor="password">Şifre</Label>
+                <Link to="/sifremi-unuttum" className="text-xs text-primary hover:underline">
+                  Şifremi Unuttum
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
