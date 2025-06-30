@@ -3,9 +3,6 @@ node_modules
 pnpm-lock.yaml
 dist
 .vscode
-<<<<<<< HEAD
-.env \".env\"  
-\".env\"  
-=======
-.env \".gemini/\nsupabase/\n.env\"  
->>>>>>> fix/parent-application-form
+.env
+.gemini/
+supabase/
