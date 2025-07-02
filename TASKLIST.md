@@ -25,16 +25,16 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
         *   [x] Başvuru formunda çoklu çocuk, cinsiyet, doğum tarihi, alerji, not, acil durum kişisi, ilaç ve fotoğraf alanları eklendi.
         *   [x] Supabase'de başvuru (applications), çocuk (children), acil kişi (emergency_contacts), ilaç (medications) ve fotoğraf (storage) entegrasyonu yapıldı.
         *   [x] Kayıt sonrası otomatik e-posta/OTP gönderimi yok, admin onayı bekleniyor.
-        *   [ ] Admin panelinde başvuruları onaylama ve onaylananları profiles tablosuna aktarma (temel haliyle eklendi, detaylandırılacak).
+        *   [x] Admin panelinde başvuruları onaylama ve onaylananları profiles tablosuna aktarma (Reddet butonu da eklendi, veri tutarlılığı sistemi kuruldu).
     *   [x] Giriş yapma (Sign In) sayfası ve işlevselliği (e-posta/şifre ile).
         *   [x] Giriş formu UI (`LoginPage.tsx` geliştirildi).
         *   [x] Supabase `signInWithPassword` entegrasyonu (`LoginPage.tsx` içinde temel entegrasyon yapıldı).
-        *   [ ] Başarılı giriş sonrası kullanıcıyı rolüne göre doğru dashboard'a yönlendirme (`LoginPage.tsx` içinde TODO bırakıldı, `AuthContext` ile yapılacak).
+        *   [x] Başarılı giriş sonrası kullanıcıyı rolüne göre doğru dashboard'a yönlendirme (Admin dashboard yönlendirmesi çalışıyor, test edildi).
     *   [x] Çıkış yapma (Sign Out) işlevselliği (`AuthContext` ve `Header.tsx` içinde eklendi).
-    *   [ ] Şifre sıfırlama (Forgot Password) akışı. (Henüz eklenmedi, yeni akışa göre planlanacak)
-        *   [ ] Şifre sıfırlama talep formu UI. (Henüz eklenmedi)
-        *   [ ] Supabase `resetPasswordForEmail` entegrasyonu. (Henüz eklenmedi)
-        *   [ ] Şifre güncelleme formu UI ve Supabase `updateUser` entegrasyonu. (Henüz eklenmedi)
+    *   [x] Şifre sıfırlama (Forgot Password) akışı. (Tamamlandı ve test edildi)
+        *   [x] Şifre sıfırlama talep formu UI. (PasswordResetPage.tsx oluşturuldu)
+        *   [x] Supabase `resetPasswordForEmail` entegrasyonu. (Çalışıyor ve test edildi)
+        *   [x] Şifre güncelleme formu UI ve Supabase `updateUser` entegrasyonu. (UpdatePasswordPage.tsx oluşturuldu, tam çalışır durumda)
     *   [x] Rol Tabanlı Erişim Kontrolü (RBAC) temelleri atılacak.
         *   [x] Frontend'de route korumaları (`ProtectedRoute.tsx` oluşturuldu ve `/admin` route'ları koruma altına alındı).
         *   [x] Supabase Row Level Security (RLS) politikalarının temel düzeyde planlanması (Kullanıcı tarafından `profiles` için yapıldı).
@@ -42,8 +42,8 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
     *   [x] `App.tsx`'i AuthProvider ile Sarmalama (Yapıldı).
     *   [x] Header'da Kullanıcı Bilgisi ve Logout Butonu (Yapıldı).
 *   **B. Admin Paneli - Kullanıcı Yönetimi:**
-    *   [ ] Kullanıcıları (Admin, Öğretmen, Veli) listeleme arayüzü.
-        *   [ ] Filtreleme (role, isme göre vb.) ve arama.
+    *   [x] Kullanıcıları (Admin, Öğretmen, Veli) listeleme arayüzü. (UserManagementPage.tsx oluşturuldu)
+        *   [x] Filtreleme (role, isme göre vb.) ve arama. (Tab sistemi ile rol filtreleme eklendi)
     *   [ ] Yeni kullanıcı (Öğretmen, Veli) ekleme formu ve işlevselliği (Admin tarafından).
         *   [ ] Rol atama.
         *   [ ] Geçici şifre oluşturma veya e-posta ile davet gönderme.
@@ -57,6 +57,8 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
 
 *   **A. Admin Dashboard:**
     *   [x] Temel Dashboard sayfası oluşturuldu (`DashboardPage.tsx`).
+    *   [x] Başvuru onaylama/reddetme sistemi eklendi (Onayla ve Reddet butonları çalışıyor).
+    *   [x] Veri tutarlılığı yönetim sistemi eklendi (DataConsistencyPage.tsx).
     *   [ ] Özet istatistiklerin gösterimi (Toplam öğrenci, öğretmen, veli; sınıf dolulukları; ödenmemiş faturalar - Backend bağlantısı sonrası).
     *   [ ] Son duyurular listesi.
     *   [ ] Sistemdeki son aktiviteler log'u (opsiyonel, basit düzeyde).
@@ -288,9 +290,18 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
     *   [ ] Kod bölme (Code Splitting).
     *   [ ] Caching stratejileri (hem frontend hem backend tarafında).
 *   **H. Testler:**
+    *   [x] E2E (End-to-End) testleri (Playwright) - Ana kullanıcı akışları için (Kapsamlı test sistemi kuruldu).
+        *   [x] Playwright test framework kurulumu ve konfigürasyonu.
+        *   [x] Test data factory (Faker.js) ile rastgele test verisi üretimi.
+        *   [x] Form automation sistemi (akıllı form doldurma).
+        *   [x] Login, kayıt olma, şifre sıfırlama testleri.
+        *   [x] Admin panel işlemleri testleri (onaylama/reddetme).
+        *   [x] Multi-browser support (Chrome, Firefox, Safari).
+        *   [x] Responsive design testleri.
+        *   [x] Accessibility testleri.
+        *   [x] Test raporu sistemi (HTML reports).
     *   [ ] Birim testleri (Jest, React Testing Library) - Kritik componentler ve fonksiyonlar için.
     *   [ ] Entegrasyon testleri - Modüller arası etkileşimler için.
-    *   [ ] E2E (End-to-End) testleri (Cypress, Playwright) - Ana kullanıcı akışları için (opsiyonel, ileri aşama).
 *   **I. Hata Takibi ve Loglama:**
     *   [ ] Frontend ve backend (Supabase Functions) için hata takip sistemi (Sentry vb.) entegrasyonu.
     *   [ ] Önemli olayların loglanması.

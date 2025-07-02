@@ -6,6 +6,8 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import LoginPage from './pages/auth/LoginPage';
 import SignUpPage from './pages/auth/SignUpPage';
 import PasswordResetPage from './pages/auth/PasswordResetPage';
+import UpdatePasswordPage from '@/pages/auth/UpdatePasswordPage';
+import AuthRedirectHandler from '@/components/auth/AuthRedirectHandler';
 import SetPasswordPage from './pages/auth/SetPasswordPage';
 
 // Public pages
@@ -29,6 +31,7 @@ import TeachersPageSettings from './pages/admin/TeachersPageSettings';
 import ContactPageSettings from './pages/admin/ContactPageSettings';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import DataConsistencyPage from '@/pages/admin/DataConsistencyPage';
+import EmailVerificationPage from '@/pages/admin/EmailVerificationPage';
 
 // Auth components
 import { AuthProvider } from './contexts/AuthContext';
@@ -74,6 +77,8 @@ function App() {
         <Route path="/kayit-ol" element={<SignUpPage />} />
         <Route path="/velisifre" element={<SetPasswordPage />} />
         <Route path="/sifremi-unuttum" element={<PasswordResetPage />} />
+        <Route path="/sifre-guncelle" element={<UpdatePasswordPage />} />
+        <Route path="/auth/callback" element={<AuthRedirectHandler />} />
         <Route path="/sifreyenileme" element={<SetPasswordPage />} />
 
         {/* Admin Routes - Protected */}
@@ -98,6 +103,7 @@ function App() {
           <Route path="contact-settings" element={<ContactPageSettings />} />
           <Route path="user-management" element={<UserManagementPage />} />
           <Route path="data-consistency" element={<DataConsistencyPage />} />
+          <Route path="email-verification" element={<EmailVerificationPage />} />
         </Route>
       </Routes>
       </AuthProvider>

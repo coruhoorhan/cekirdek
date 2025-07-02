@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,27 @@ import { LogIn, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
 import { loginRateLimiter, logSecurityEvent } from '@/lib/security';
+import AuthRedirectHandler from '@/components/auth/AuthRedirectHandler';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [rateLimitError, setRateLimitError] = useState<string | null>(null);
+
+  // Auth redirect handler - e-posta doğrulama linklerini handle et
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const accessToken = urlParams.get('access_token');
+    const type = urlParams.get('type');
+
+    // Eğer recovery (şifre sıfırlama) linki ise şifre güncelleme sayfasına yönlendir
+    if (type === 'recovery' && accessToken) {
+      console.log('🔄 Şifre sıfırlama linki tespit edildi, yönlendiriliyor...');
+      navigate(`/sifre-guncelle${location.search}`);
+      return;
+    }
+  }, [location, navigate]);
 
   const {
     register,

@@ -8,14 +8,34 @@ import { supabase } from './supabaseClient';
  */
 const formatCleanUrl = (baseUrl: string, path: string): string => {
   // Başındaki ve sonundaki boşlukları temizle
-  const cleanBase = baseUrl.trim();
-  const cleanPath = path.trim();
-  
+  let cleanBase = baseUrl.trim();
+  let cleanPath = path.trim();
+
+  // URL'deki tüm boşlukları ve özel karakterleri temizle
+  cleanBase = cleanBase.replace(/\s+/g, '').replace(/\u0020/g, '');
+  cleanPath = cleanPath.replace(/\s+/g, '').replace(/\u0020/g, '');
+
   // Başında / varsa kaldır
   const formattedPath = cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath;
-  
-  // URL'nin sonunda / olup olmadığına göre birleştir
-  return cleanBase.endsWith('/') ? `${cleanBase}${formattedPath}` : `${cleanBase}/${formattedPath}`;
+
+  // Son / karakterini kaldır (eğer varsa)
+  const normalizedBase = cleanBase.endsWith('/') ? cleanBase.slice(0, -1) : cleanBase;
+
+  // URL'yi birleştir
+  const fullUrl = `${normalizedBase}/${formattedPath}`;
+
+  // URL'nin geçerli olduğunu kontrol et
+  try {
+    new URL(fullUrl);
+    console.log('✅ Temizlenmiş URL:', fullUrl);
+    return fullUrl;
+  } catch (error) {
+    console.error('❌ Invalid URL format:', fullUrl, error);
+    // Fallback olarak localhost kullan
+    const fallbackUrl = `http://localhost:5173/${formattedPath}`;
+    console.log('🔄 Fallback URL:', fallbackUrl);
+    return fallbackUrl;
+  }
 };
 
 /**
@@ -25,8 +45,8 @@ const formatCleanUrl = (baseUrl: string, path: string): string => {
  */
 export const sendPasswordResetEmail = async (email: string): Promise<{success: boolean, error?: string}> => {
   try {
-    // Temiz URL oluştur
-    const redirectUrl = formatCleanUrl(window.location.origin, 'sifreyenileme');
+    // Temiz URL oluştur - Yeni şifre güncelleme sayfasına yönlendir
+    const redirectUrl = formatCleanUrl(window.location.origin, 'sifre-guncelle');
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl
