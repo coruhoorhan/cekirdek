@@ -161,10 +161,14 @@ console.log('Element visible:', await element.isVisible());
 ```typescript
 // Mevcut kullanıcılar (Supabase'de kayıtlı)
 const existingUsers = [
-  { email: 'l.demir@fatsa.bel.tr', password: 'test123', role: 'parent' },
-  { email: 'o.coruh@fatsa.bel.tr', password: 'test123', role: 'parent' },
-  { email: 'coruho52@gmail.com', password: 'test123', role: 'admin' }
+  { email: 'l.demir@fatsa.bel.tr', password: process.env.TEST_USER_PASSWORD, role: 'parent' },
+  { email: 'o.coruh@fatsa.bel.tr', password: process.env.TEST_USER_PASSWORD, role: 'parent' },
+  { email: 'coruho52@gmail.com', password: process.env.TEST_ADMIN_PASSWORD, role: 'admin' }
 ];
+// NOT: Şifreler güvenlik nedeniyle koddan kaldırıldı.
+// Testleri çalıştırmak için .env dosyanızda aşağıdaki gibi değişkenler tanımlanmalıdır:
+// TEST_USER_PASSWORD=your_test_password
+// TEST_ADMIN_PASSWORD=your_admin_password
 ```
 
 ### Test Data Factory Kullanımı

@@ -90,3 +90,7 @@ playwright-report/
 
 # Lock files (keep pnpm-lock.yaml for consistency)
 # pnpm-lock.yaml - commented out to keep for team consistency
+
+
+# Ignore all Markdown files as per user request
+*.md
