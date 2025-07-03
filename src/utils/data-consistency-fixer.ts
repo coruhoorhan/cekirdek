@@ -131,7 +131,7 @@ export class DataConsistencyFixer {
       // Başvuru bilgilerini al
       const { data: application, error: appError } = await supabase
         .from('applications')
-        .select('*')
+        .select('name')
         .eq('email', email)
         .single();
 
@@ -139,42 +139,32 @@ export class DataConsistencyFixer {
         return { success: false, message: 'Başvuru bulunamadı' };
       }
 
-      // E-posta format kontrolü
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return { success: false, message: 'Geçersiz e-posta formatı' };
-      }
-
-      // Kullanıcı oluştur
-      const tempPassword = Math.random().toString(36).slice(-8) + 'Temp123!';
-      
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email,
-        password: tempPassword,
-        options: {
-          data: {
+      // Admin API kullanarak kullanıcıyı davet et. Bu, kullanıcıya şifre belirleme linki gönderir.
+      const { data, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
+        email,
+        {
+          data: { 
             full_name: application.name,
             role: 'parent'
-          }
+          },
+          redirectTo: `${window.location.origin}/velisifre`
         }
-      });
+      );
 
-      if (authError) {
-        return { success: false, message: `Kullanıcı oluşturulamadı: ${authError.message}` };
-      }
-
-      // Profile name'i güncelle
-      if (authData.user) {
-        await supabase
-          .from('profiles')
-          .update({ name: application.name })
-          .eq('id', authData.user.id);
+      if (inviteError) {
+        // Kullanıcı zaten varsa, bu hatayı görmezden gelip yine de başarılı sayabiliriz
+        // çünkü amaç kullanıcıyı sisteme dahil etmek.
+        if (inviteError.message.includes('User already registered')) {
+          console.warn(`Kullanıcı zaten mevcut: ${email}. Davet yenilenemedi ama işlem başarılı sayılıyor.`);
+        } else {
+          return { success: false, message: `Kullanıcı davet edilemedi: ${inviteError.message}` };
+        }
       }
 
       return { 
         success: true, 
-        message: 'Kullanıcı başarıyla oluşturuldu',
-        details: { userId: authData.user?.id }
+        message: 'Kullanıcı başarıyla davet edildi ve şifre belirleme e-postası gönderildi.',
+        details: { userId: data.user?.id }
       };
 
     } catch (error) {

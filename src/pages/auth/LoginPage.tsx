@@ -91,8 +91,34 @@ const LoginPage: React.FC = () => {
           email: data.email,
         });
 
-        console.log('Login successful:', authData.user);
-        navigate('/admin/dashboard');
+        // Kullanıcının rolünü profiller tablosundan al
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Profil alınırken hata:', profileError);
+          setError('email', { message: 'Kullanıcı profili bulunamadı.' });
+          await supabase.auth.signOut(); // Hata durumunda çıkış yap
+          return;
+        }
+
+        // Role göre yönlendirme yap
+        const userRole = profileData?.role;
+        console.log(`Login successful for user: ${authData.user.email}, role: ${userRole}`);
+        
+        if (userRole === 'admin') {
+          navigate('/admin/dashboard');
+        } else if (userRole === 'parent') {
+          navigate('/veli-paneli'); // Veli paneli yolunu varsayıyoruz
+        } else if (userRole === 'teacher') {
+          navigate('/ogretmen-paneli'); // Öğretmen paneli yolunu varsayıyoruz
+        } else {
+          // Rolü olmayan veya tanımsız rolü olanlar için varsayılan sayfa
+          navigate('/'); 
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

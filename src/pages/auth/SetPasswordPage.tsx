@@ -1,104 +1,105 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/lib/supabaseClient';
-import { Loader2, Key, AlertCircle } from 'lucide-react';
+import { Loader2, Key, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const SetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
-  
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  const [userData, setUserData] = useState<{name: string} | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    // Token ve email zorunlu parametrelerdir
-    if (!token || !email) {
-      setError('Geçersiz şifre sıfırlama bağlantısı. Lütfen e-postanıza gelen bağlantıyı kullanın.');
-      return;
-    }
+    const handleAuthChange = async () => {
+      const hash = window.location.hash;
+      if (hash.includes('access_token') && hash.includes('refresh_token')) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
 
-    // Kullanıcı bilgilerini getir
-    const fetchUserData = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('applications')
-          .select('name')
-          .eq('email', email)
-          .eq('status', 'approved')
-          .single();
+        if (accessToken && refreshToken) {
+          const { error: setSessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
 
-        if (error) {
-          console.error('Kullanıcı bilgileri alınırken hata:', error);
-          return;
+          if (setSessionError) {
+            setError("Geçersiz veya süresi dolmuş şifre sıfırlama linki. Lütfen yeni bir link talep edin.");
+          } else {
+            window.history.replaceState(null, '', window.location.pathname);
+          }
         }
-
-        if (data) {
-          setUserData({ name: data.name });
-        }
-      } catch (err) {
-        console.error('Beklenmeyen hata:', err);
+      } else {
+         const { data: { session } } = await supabase.auth.getSession();
+         if (!session) {
+            setError("Geçerli bir oturum bulunamadı. Lütfen e-postanızdaki linki tekrar kullanın veya yeni bir link talep edin.");
+         }
       }
+      setSessionChecked(true);
     };
 
-    fetchUserData();
-  }, [token, email]);
+    handleAuthChange();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setError(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
-    setSuccess(false);
     
-    // Şifre kontrolü
-    if (password !== confirmPassword) {
-      setError('Şifreler eşleşmiyor. Lütfen kontrol edin.');
+    if (password.length < 8 || password !== confirmPassword) {
+      setError("Lütfen şifre kurallarına uyun ve şifrelerin eşleştiğinden emin olun.");
       return;
     }
 
-    if (password.length < 6) {
-      setError('Şifre en az 6 karakter uzunluğunda olmalıdır.');
-      return;
-    }
-
+    setError(null);
     setLoading(true);
 
     try {
-      // Şifreyi güncelle
-      const { error } = await supabase.auth.updateUser({
+      const { error: updateError } = await supabase.auth.updateUser({
         password: password
       });
 
-      if (error) {
-        setError(`Şifre güncellenirken hata oluştu: ${error.message}`);
-        setLoading(false);
-        return;
+      if (updateError) {
+        setError(`Şifre güncellenirken hata oluştu: ${updateError.message}`);
+      } else {
+        setSuccess(true);
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
       }
-
-      // Başarılı
-      setSuccess(true);
-      setPassword('');
-      setConfirmPassword('');
-      
-      // 3 saniye sonra login sayfasına yönlendir
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
     } catch (err) {
       setError(`Beklenmeyen bir hata oluştu: ${err instanceof Error ? err.message : 'Bilinmeyen hata'}`);
     } finally {
       setLoading(false);
     }
   };
+
+  const isButtonDisabled = loading || success || password.length < 8 || password !== confirmPassword;
+
+  if (!sessionChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-yellow-50 p-4">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Oturum kontrol ediliyor...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-yellow-50 p-4">
@@ -109,11 +110,7 @@ const SetPasswordPage: React.FC = () => {
             Şifre Oluştur
           </CardTitle>
           <CardDescription className="text-center">
-            {userData ? (
-              <span>Merhaba <strong>{userData.name}</strong>, lütfen hesabınız için şifre oluşturun.</span>
-            ) : (
-              <span>Hesabınız için yeni bir şifre oluşturun.</span>
-            )}
+            Hesabınız için yeni bir şifre oluşturun.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -126,54 +123,71 @@ const SetPasswordPage: React.FC = () => {
           )}
 
           {success && (
-            <Alert className="mb-4">
-              <AlertTitle>Başarılı!</AlertTitle>
-              <AlertDescription>Şifreniz başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyorsunuz...</AlertDescription>
+            <Alert variant="default" className="mb-4 bg-green-50 border-green-200">
+               <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-800">Başarılı!</AlertTitle>
+              <AlertDescription className="text-green-700">Şifreniz başarıyla oluşturuldu. Giriş sayfasına yönlendiriliyorsunuz...</AlertDescription>
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="password">Şifre</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading || success}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Şifre Tekrar</Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  disabled={loading || success}
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading || success}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Şifre Oluşturuluyor...
-                  </>
-                ) : (
-                  "Şifreyi Oluştur"
+          {!success && !error && (
+            <form onSubmit={handleSubmit}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Yeni Şifre</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Şifre Tekrar</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                 {password && (
+                    <div className="text-sm space-y-1 mt-2">
+                        <div className={`flex items-center ${password.length >= 8 ? 'text-green-600' : 'text-red-600'}`}>
+                            {password.length >= 8 ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
+                            En az 8 karakter
+                        </div>
+                        {confirmPassword && (
+                             <div className={`flex items-center ${password === confirmPassword ? 'text-green-600' : 'text-red-600'}`}>
+                                {password === confirmPassword ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
+                                Şifreler eşleşiyor
+                            </div>
+                        )}
+                    </div>
                 )}
-              </Button>
-            </div>
-          </form>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isButtonDisabled}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Şifre Oluşturuluyor...
+                    </>
+                  ) : (
+                    "Şifreyi Oluştur"
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
@@ -185,4 +199,4 @@ const SetPasswordPage: React.FC = () => {
   );
 };
 
-export default SetPasswordPage; 
+export default SetPasswordPage;

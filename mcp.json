@@ -1,4 +1,5 @@
 {
+  "autoCompact": true,
   "mcpServers": {
     "supabase": {
       "command": "npx",
@@ -8,7 +9,7 @@
         "--project-ref=uunmmuybfcqiyxbnncjj"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "sbp_28848fde7334e0c8d48e8786c286b017881040be"
+        "SUPABASE_ACCESS_TOKEN": "sbp_336658edb89617ef04efbb6dd6b6ec06f0a66a37"
       }
     },
     "sequential-thinking": {
