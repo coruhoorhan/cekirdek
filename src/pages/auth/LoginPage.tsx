@@ -110,14 +110,14 @@ const LoginPage: React.FC = () => {
         console.log(`Login successful for user: ${authData.user.email}, role: ${userRole}`);
         
         if (userRole === 'admin') {
-          navigate('/admin/dashboard');
+            navigate('/admin/dashboard');
         } else if (userRole === 'parent') {
-          navigate('/veli-paneli'); // Veli paneli yolunu varsayıyoruz
+            navigate('/veli-paneli'); // Veli paneli yolunu varsayıyoruz
         } else if (userRole === 'teacher') {
-          navigate('/ogretmen-paneli'); // Öğretmen paneli yolunu varsayıyoruz
+            navigate('/ogretmen-paneli'); // Öğretmen paneli yolunu varsayıyoruz
         } else {
-          // Rolü olmayan veya tanımsız rolü olanlar için varsayılan sayfa
-          navigate('/'); 
+            // Rolü olmayan veya tanımsız rolü olanlar için varsayılan sayfa
+            navigate('/'); 
         }
       }
     } catch (error) {
@@ -166,7 +166,7 @@ const LoginPage: React.FC = () => {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password">Şifre</Label>
+              <Label htmlFor="password">Şifre</Label>
                 <Link to="/sifremi-unuttum" className="text-xs text-primary hover:underline">
                   Şifremi Unuttum
                 </Link>
