@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Home, Info, Settings, Newspaper, Image, Users, BarChart2, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
-import { sendPasswordSetupEmail } from '@/lib/emailService';
+// import { sendPasswordSetupEmail } from '@/lib/emailService'; // Kaynak bulunamadığı için kaldırıldı
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -170,23 +170,17 @@ const DashboardPage: React.FC = () => {
         return;
       }
 
-      console.log(`Şifre belirleme e-postası gönderiliyor: ${app.email}, yönlendirme: ${cleanOrigin}/velisifre`);
-      const emailResult = await sendPasswordSetupEmail(app.email, app.name);
-      if (!emailResult.success) {
-        toast({
-          title: "E-posta gönderme uyarısı",
-          description: emailResult.error || "E-posta gönderilirken bir sorun oluştu",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Başarılı",
-          description: `${app.name} başvurusu onaylandı ve şifre belirleme e-postası gönderildi.`,
-          variant: "default"
-        });
-      }
+      // sendPasswordSetupEmail çağrısı ve ilgili toast mesajları kaldırıldı.
+      // Supabase auth.signUp zaten emailRedirectTo ile bir e-posta gönderecek.
+
+      toast({
+        title: "Başarılı",
+        description: `${app.name} adlı kullanıcının başvurusu onaylandı. Kullanıcıya şifre belirlemesi için e-posta gönderildi.`,
+        variant: "default"
+      });
       
-      fetchApplications();
+      fetchApplications(); // Listeyi yenile
+      fetchUsers(); // Kullanıcı listesini de yenileyebiliriz
     } catch (err) {
       console.error("Onaylama işlemi sırasında hata:", err);
       const errorMessage = err instanceof Error ? err.message : "Bilinmeyen hata";

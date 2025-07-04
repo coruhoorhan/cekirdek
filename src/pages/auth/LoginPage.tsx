@@ -10,10 +10,12 @@ import { LogIn, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
 import { loginRateLimiter, logSecurityEvent } from '@/lib/security';
-import AuthRedirectHandler from '@/components/auth/AuthRedirectHandler';
+// import AuthRedirectHandler from '@/components/auth/AuthRedirectHandler'; // Bu sayfada AuthRedirectHandler'a gerek yok gibi duruyor, AuthContext yönlendirmeyi yapmalı.
+import { useAuth } from '@/contexts/AuthContext'; // useAuth import edildi
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { isAccountActive, signOut } = useAuth(); // isAccountActive ve signOut AuthContext'ten alındı
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [rateLimitError, setRateLimitError] = useState<string | null>(null);
@@ -191,9 +193,17 @@ const LoginPage: React.FC = () => {
                 <p className="text-sm text-red-600">{rateLimitError}</p>
               </div>
             )}
+            {!isAccountActive && (
+              <div className="flex items-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                <AlertCircle size={16} className="text-yellow-700" />
+                <p className="text-sm text-yellow-700">
+                  Hesabınız pasif durumdadır. Lütfen okul yönetimi ile iletişime geçin.
+                </p>
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || !isAccountActive}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2 h-4 w-4" />}
               Giriş Yap
             </Button>

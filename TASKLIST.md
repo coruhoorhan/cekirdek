@@ -42,14 +42,15 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
     *   [x] `App.tsx`'i AuthProvider ile Sarmalama (Yapıldı).
     *   [x] Header'da Kullanıcı Bilgisi ve Logout Butonu (Yapıldı).
 *   **B. Admin Paneli - Kullanıcı Yönetimi:**
-    *   [x] Kullanıcıları (Admin, Öğretmen, Veli) listeleme arayüzü. (UserManagementPage.tsx oluşturuldu)
-        *   [x] Filtreleme (role, isme göre vb.) ve arama. (Tab sistemi ile rol filtreleme eklendi)
+    *   [x] Kullanıcıları (Admin, Öğretmen, Veli) listeleme arayüzü. (`UserManagementPage.tsx` oluşturuldu, `auth.users`, `profiles` ve `applications` tablolarını listeliyor)
+        *   [x] Filtreleme (role, isme göre vb.) ve arama. (Tab sistemi ile rol filtreleme `UserManagementPage.tsx` içinde eklendi)
+        *   [x] Adminin, e-postası onaylanmamış kullanıcıya şifre sıfırlama/belirleme e-postası gönderme işlevi (`UserManagementPage.tsx` içinde mevcut).
     *   [ ] Yeni kullanıcı (Öğretmen, Veli) ekleme formu ve işlevselliği (Admin tarafından).
         *   [ ] Rol atama.
         *   [ ] Geçici şifre oluşturma veya e-posta ile davet gönderme.
     *   [ ] Kullanıcı bilgilerini düzenleme arayüzü.
     *   [ ] Kullanıcı rolünü değiştirme.
-    *   [ ] Kullanıcı hesabını aktifleştirme/pasifleştirme.
+    *   [x] Kullanıcı hesabını aktifleştirme/pasifleştirme. (Bu görev kapsamında yapılacak)
     *   [ ] Öğretmenleri sınıflara atama arayüzü.
     *   [ ] Velileri çocuklara atama arayüzü.
 
@@ -57,8 +58,8 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
 
 *   **A. Admin Dashboard:**
     *   [x] Temel Dashboard sayfası oluşturuldu (`DashboardPage.tsx`).
-    *   [x] Başvuru onaylama/reddetme sistemi eklendi (Onayla ve Reddet butonları çalışıyor).
-    *   [x] Veri tutarlılığı yönetim sistemi eklendi (DataConsistencyPage.tsx).
+    *   [x] Başvuru onaylama/reddetme sistemi eklendi (Onayla ve Reddet butonları `DashboardPage.tsx` üzerinde çalışıyor).
+    *   [x] Veri tutarlılığı yönetim sistemi eklendi (`DataConsistencyPage.tsx`).
     *   [ ] Özet istatistiklerin gösterimi (Toplam öğrenci, öğretmen, veli; sınıf dolulukları; ödenmemiş faturalar - Backend bağlantısı sonrası).
     *   [ ] Son duyurular listesi.
     *   [ ] Sistemdeki son aktiviteler log'u (opsiyonel, basit düzeyde).

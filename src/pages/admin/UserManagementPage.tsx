@@ -23,6 +23,7 @@ interface Profile {
   id: string;
   name: string | null;
   role: string;
+  is_active: boolean; // Eklendi
   created_at: string;
 }
 
@@ -58,7 +59,7 @@ const UserManagementPage: React.FC = () => {
       // Profiles
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id, name, role, created_at')
+        .select('id, name, role, created_at, is_active') // is_active eklendi
         .order('created_at', { ascending: false });
 
       if (profileError) {
@@ -125,10 +126,17 @@ const UserManagementPage: React.FC = () => {
     return <Badge variant="destructive"><AlertCircle size={12} className="mr-1" />Doğrulanmadı</Badge>;
   };
 
+  const getUserStatusBadge = (isActive: boolean) => {
+    if (isActive) {
+      return <Badge variant="default" className="bg-green-500"><CheckCircle size={12} className="mr-1" />Aktif</Badge>;
+    }
+    return <Badge variant="secondary" className="bg-red-500 text-white"><AlertCircle size={12} className="mr-1" />Pasif</Badge>;
+  };
+
   const sendPasswordResetEmail = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/velisifre`
+        redirectTo: `${window.location.origin}/velisifre` // Kullanıcının şifre belirleyeceği sayfa
       });
 
       if (error) {
@@ -140,7 +148,7 @@ const UserManagementPage: React.FC = () => {
       } else {
         toast({
           title: "Başarılı",
-          description: `Şifre sıfırlama e-postası ${email} adresine gönderildi`,
+          description: `Şifre belirleme/sıfırlama e-postası ${email} adresine gönderildi`,
           variant: "default"
         });
       }
@@ -153,6 +161,40 @@ const UserManagementPage: React.FC = () => {
       });
     }
   };
+
+  const toggleUserStatus = async (profileId: string, currentStatus: boolean) => {
+    const newStatus = !currentStatus;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: newStatus })
+        .eq('id', profileId);
+
+      if (error) {
+        toast({
+          title: "Durum güncelleme hatası",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Başarılı",
+          description: `Kullanıcı durumu ${newStatus ? 'aktif' : 'pasif'} olarak güncellendi.`,
+          variant: "default",
+        });
+        // Veriyi yeniden çekerek listeyi güncelle
+        fetchData();
+      }
+    } catch (error) {
+      console.error('User status toggle error:', error);
+      toast({
+        title: "Hata",
+        description: "Kullanıcı durumu güncellenirken bir hata oluştu",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   if (loading) {
     return (
@@ -251,7 +293,9 @@ const UserManagementPage: React.FC = () => {
                     <TableHead>ID</TableHead>
                     <TableHead>Ad</TableHead>
                     <TableHead>Rol</TableHead>
+                    <TableHead>Profil Durumu</TableHead> {/* Eklendi */}
                     <TableHead>Oluşturma Tarihi</TableHead>
+                    <TableHead>İşlemler</TableHead> {/* Eklendi */}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -264,7 +308,18 @@ const UserManagementPage: React.FC = () => {
                           {profile.role}
                         </Badge>
                       </TableCell>
+                      <TableCell>{getUserStatusBadge(profile.is_active)}</TableCell> {/* Eklendi */}
                       <TableCell>{formatDate(profile.created_at)}</TableCell>
+                      <TableCell> {/* Eklendi */}
+                        <Button
+                          size="sm"
+                          variant={profile.is_active ? "destructive" : "default"}
+                          onClick={() => toggleUserStatus(profile.id, profile.is_active)}
+                          className={profile.is_active ? "" : "bg-green-500 hover:bg-green-600"}
+                        >
+                          {profile.is_active ? 'Pasif Et' : 'Aktif Et'}
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
