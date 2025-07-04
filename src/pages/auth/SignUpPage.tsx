@@ -112,12 +112,11 @@ const SignUpPage: React.FC = () => {
         .select();
 
       if (appError) {
-        console.error("Supabase application insert error:", appError);
+        console.error("Supabase application insert error:", JSON.stringify(appError, null, 2));
         setLoading(false);
         setError(`Başvuru gönderilirken hata oluştu: ${appError.message}`);
         return;
-      }
-      
+      }      
       if (!appData || appData.length === 0) {
         console.error("No application data returned");
         setLoading(false);

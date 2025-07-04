@@ -1,19 +1,20 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Info, Settings, LayoutDashboard, Newspaper, Image, Users, Phone } from 'lucide-react'; // İkonlar
+import { Home, Info, Settings, LayoutDashboard, Newspaper, Image, Users, Phone, UserCheck, Database, Mail } from 'lucide-react'; // İkonlar
 
 const AdminSidebar: React.FC = () => {
   const navItems = [
     { to: '/admin/dashboard', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
+    { to: '/admin/user-management', icon: <UserCheck size={20} />, label: 'Kullanıcı Yönetimi' },
+    { to: '/admin/email-verification', icon: <Mail size={20} />, label: 'E-posta Doğrulama' },
+    { to: '/admin/data-consistency', icon: <Database size={20} />, label: 'Veri Tutarlılığı' },
     { to: '/admin/home-settings', icon: <Home size={20} />, label: 'Anasayfa Yönetimi' },
     { to: '/admin/about-settings', icon: <Info size={20} />, label: 'Hakkımızda Yönetimi' },
-    { to: '/admin/education-settings', icon: <Settings size={20} />, label: 'Eğitim Yönetimi' }, // Assuming Settings icon for now
+    { to: '/admin/education-settings', icon: <Settings size={20} />, label: 'Eğitim Yönetimi' },
     { to: '/admin/gallery-settings', icon: <Image size={20} />, label: 'Galeri Yönetimi' },
     { to: '/admin/news-settings', icon: <Newspaper size={20} />, label: 'Haberler Yönetimi' },
     { to: '/admin/teachers-settings', icon: <Users size={20} />, label: 'Öğretmenler Yönetimi' },
     { to: '/admin/contact-settings', icon: <Phone size={20} />, label: 'İletişim Yönetimi' },
-    // Gelecekte eklenebilecek diğer linkler
-    // { to: '/admin/settings', icon: <Settings size={20} />, label: 'Genel Ayarlar' },
   ];
 
   return (

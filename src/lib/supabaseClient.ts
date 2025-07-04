@@ -13,6 +13,37 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
-    persistSession: true
-  }
+    persistSession: true,
+    detectSessionInUrl: true,
+    storageKey: 'supabase.auth.token',
+    storage: localStorage
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  },
+  global: {
+    headers: {
+      'x-application-name': 'cekirdek-app',
+    },
+  },
 });
+
+// Ek olarak supabase durumunu kontrol edecek yardımcı fonksiyon
+export const checkSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    // Basit bir sorgu ile Supabase bağlantısını test et
+    const { data, error } = await supabase.from('profiles').select('id').limit(1);
+    
+    if (error) {
+      console.error('Supabase connection check failed:', error.message);
+      return false;
+    }
+    
+    return true;
+  } catch (err) {
+    console.error('Supabase connection error:', err);
+    return false;
+  }
+};

@@ -17,8 +17,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   profileNotFound: boolean;
-  // signIn fonksiyonu genellikle login sayfasında direkt supabase.auth.signInWithPassword ile çağrılır,
-  // ama gerekirse buraya da eklenebilir.
+  refreshProfile: () => Promise<void>; // Profil yenileme fonksiyonu eklendi
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,88 +29,120 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const [profileNotFound, setProfileNotFound] = useState(false);
 
-  useEffect(() => {
-    const fetchSessionAndProfile = async () => {
-      setLoading(true);
-      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        console.error("Error fetching session:", sessionError.message);
-        setLoading(false);
-        return;
-      }
-
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-
-      if (currentSession?.user) {
-        await fetchUserProfile(currentSession.user.id);
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    };
-
-    fetchSessionAndProfile();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
-      setLoading(true);
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      if (newSession?.user) {
-        await fetchUserProfile(newSession.user.id);
-      } else {
-        setProfile(null);
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      authListener?.subscription.unsubscribe(); // Doğru unsubscribe metodu
-    };
-  }, []);
-
+  // Profil bilgilerini yeniden almak için fonksiyon
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, role, name') // İhtiyaç duyulan alanları seçin
+        .select('id, role, name') 
         .eq('id', userId)
         .single();
 
       if (error) {
         console.error('Error fetching user profile:', error.message);
-        setProfile(null);
         if (error.code === 'PGRST116' || error.message.includes("relation \"profiles\" does not exist")) {
             console.warn("Profile not found or 'profiles' table does not exist. This might be a new user or an RLS issue.");
             setProfileNotFound(true);
         }
-        return;
+        return null;
       }
+      
       if (data) {
         setProfile(data as UserProfile);
         setProfileNotFound(false);
+        return data as UserProfile;
       } else {
-        setProfile(null);
-        setProfileNotFound(true);
         console.warn(`No profile found for user ID: ${userId}`);
+        setProfileNotFound(true);
+        return null;
       }
     } catch (e) {
       console.error('Unexpected error fetching profile:', e);
-      setProfile(null);
       setProfileNotFound(true);
+      return null;
     }
   };
 
+  // Profil bilgilerini dışarıdan yenilemek için fonksiyon
+  const refreshProfile = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    await fetchUserProfile(user.id);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    let authListener: { subscription: { unsubscribe: () => void } } | null = null;
+    
+    const setupAuth = async () => {
+      setLoading(true);
+      
+      try {
+        // Mevcut oturumu al
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          console.error("Error fetching session:", sessionError.message);
+          setLoading(false);
+          return;
+        }
+
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          await fetchUserProfile(currentSession.user.id);
+        } else {
+          setProfile(null);
+        }
+
+        // Auth state değişikliklerini dinle
+        const { data: listener } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          
+          if (newSession?.user) {
+            await fetchUserProfile(newSession.user.id);
+          } else {
+            setProfile(null);
+            setProfileNotFound(false);
+          }
+        });
+
+        authListener = listener;
+      } catch (error) {
+        console.error("Error setting up auth:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    setupAuth();
+
+    return () => {
+      if (authListener?.subscription?.unsubscribe) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, []);
+
   const signOut = async () => {
-    // setLoading(true); // Opsiyonel: çıkış işlemi çok hızlı olduğu için anlık bir loading state değişimi fark edilmeyebilir.
-                        // Eğer çıkış sonrası yönlendirme veya başka async işlemler varsa eklenebilir.
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error.message);
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error.message);
+      }
+      setSession(null);
+      setUser(null);
+      setProfile(null);
+      setProfileNotFound(false);
+    } catch (error) {
+      console.error('Unexpected error signing out:', error);
+    } finally {
+      setLoading(false);
     }
-    // onAuthStateChange listener geri kalanı halledecek (session, user, profile'ı null yapacak)
-    // ve setLoading(false) yapacak.
   };
 
   const value = {
@@ -121,6 +152,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loading,
     signOut,
     profileNotFound,
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

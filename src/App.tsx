@@ -1,33 +1,43 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // Navigate import edildi
-import Header from './components/Header';
-import Footer from './components/Footer';
-import { AuthProvider } from './contexts/AuthContext'; // AuthProvider import edildi
-import ProtectedRoute from './components/auth/ProtectedRoute'; // ProtectedRoute import edildi
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+// Auth pages
+import LoginPage from './pages/auth/LoginPage';
+import SignUpPage from './pages/auth/SignUpPage';
+import PasswordResetPage from './pages/auth/PasswordResetPage';
+import UpdatePasswordPage from '@/pages/auth/UpdatePasswordPage';
+import AuthRedirectHandler from '@/components/auth/AuthRedirectHandler';
+import SetPasswordPage from './pages/auth/SetPasswordPage';
+
+// Public pages
 import Home from './pages/Home';
 import About from './pages/About';
 import Education from './pages/Education';
-import Teachers from './pages/Teachers';
 import Gallery from './pages/Gallery';
 import News from './pages/News';
+import Teachers from './pages/Teachers';
 import Contact from './pages/Contact';
-import './App.css';
 
-// Auth pages
-import LoginPage from './pages/auth/LoginPage'; // Yeni yol
-import SignUpPage from './pages/auth/SignUpPage'; // Yeni sayfa
-
-// Admin components
+// Admin Components
 import AdminLayout from './components/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
-import HomePageSettings from './pages/admin/HomePageSettings'; // HomePageSettings import edildi
-import AboutPageSettings from './pages/admin/AboutPageSettings'; // AboutPageSettings import edildi
+import HomePageSettings from './pages/admin/HomePageSettings';
+import AboutPageSettings from './pages/admin/AboutPageSettings';
 import EducationPageSettings from './pages/admin/EducationPageSettings';
 import GalleryPageSettings from './pages/admin/GalleryPageSettings';
 import NewsPageSettings from './pages/admin/NewsPageSettings';
 import TeachersPageSettings from './pages/admin/TeachersPageSettings';
 import ContactPageSettings from './pages/admin/ContactPageSettings';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import DataConsistencyPage from '@/pages/admin/DataConsistencyPage';
+import EmailVerificationPage from '@/pages/admin/EmailVerificationPage';
 
-// Artık gerçek component'ler kullanıldığı için eski placeholder tanımlarına gerek yok.
+// Auth components
+import { AuthProvider } from './contexts/AuthContext';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Site Layout (Header ve Footer'ı içerir)
 const SiteLayout = ({ children }: { children: React.ReactNode }) => (
@@ -65,13 +75,20 @@ function App() {
         {/* Auth Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/kayit-ol" element={<SignUpPage />} />
+        <Route path="/velisifre" element={<SetPasswordPage />} />
+        <Route path="/sifremi-unuttum" element={<PasswordResetPage />} />
+        <Route path="/sifre-guncelle" element={<UpdatePasswordPage />} />
+        <Route path="/auth/callback" element={<AuthRedirectHandler />} />
+        <Route path="/sifreyenileme" element={<SetPasswordPage />} />
 
         {/* Admin Routes - Protected */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout />
+              <ErrorBoundary>
+                <AdminLayout />
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         >
@@ -84,6 +101,9 @@ function App() {
           <Route path="news-settings" element={<NewsPageSettings />} />
           <Route path="teachers-settings" element={<TeachersPageSettings />} />
           <Route path="contact-settings" element={<ContactPageSettings />} />
+          <Route path="user-management" element={<UserManagementPage />} />
+          <Route path="data-consistency" element={<DataConsistencyPage />} />
+          <Route path="email-verification" element={<EmailVerificationPage />} />
         </Route>
       </Routes>
       </AuthProvider>

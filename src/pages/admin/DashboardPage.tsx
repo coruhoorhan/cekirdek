@@ -4,6 +4,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Home, Info, Settings, Newspaper, Image, Users, BarChart2, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
+import { sendPasswordSetupEmail } from '@/lib/emailService';
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, AlertCircle } from "lucide-react";
 
 const quickLinks = [
   { to: '/admin/home-settings', icon: <Home className="w-6 h-6 text-primary" />, title: 'Anasayfa Yönetimi', description: 'Hero, değerler, branşlar vb. yönetin.' },
@@ -24,13 +30,44 @@ interface Application {
   created_at: string;
 }
 
+interface UserWithVerification {
+  id: string;
+  email: string;
+  name?: string;
+  role?: string;
+  email_confirmed_at: string | null;
+  created_at: string;
+}
+
 const DashboardPage: React.FC = () => {
   const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [users, setUsers] = useState<UserWithVerification[]>([]);
+  const [activeTab, setActiveTab] = useState<'applications' | 'users'>('applications');
+  const { toast } = useToast();
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_users_with_verification_status');
+      
+      if (error) {
+        console.error("Kullanıcı listesi alınamadı:", error);
+        return;
+      }
+      
+      if (data) {
+        setUsers(data as UserWithVerification[]);
+      }
+    } catch (err) {
+      console.error("Kullanıcı listesi getirirken hata:", err);
+    }
+  };
 
   useEffect(() => {
     fetchApplications();
+    fetchUsers();
   }, []);
 
   const fetchApplications = async () => {
@@ -49,135 +86,320 @@ const DashboardPage: React.FC = () => {
   const handleApprove = async (app: Application) => {
     setLoading(true);
     setError(null);
-    // 1. profiles tablosuna ekle
-    const { error: profileError } = await supabase.from('profiles').insert([
-      {
-        id: app.email, // veya uygun bir id üretimi, eğer email id değilse
-        name: app.name,
-        role: 'parent',
-      },
-    ]);
-    if (profileError) {
-      setError('Profil eklenemedi: ' + profileError.message);
+
+    try {
+      // E-posta adresini temizle (trim ve format kontrolü)
+      const cleanEmail = app.email.trim().toLowerCase();
+
+      // E-posta format kontrolü
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(cleanEmail)) {
+        toast({
+          title: "E-posta format hatası",
+          description: `Geçersiz e-posta formatı: ${cleanEmail}`,
+          variant: "destructive"
+        });
+        setError(`Geçersiz e-posta formatı: ${cleanEmail}`);
+        setLoading(false);
+        return;
+      }
+
+      // Önce applications tablosundaki e-posta adresini güncelle
+      const { error: updateEmailError } = await supabase
+        .from('applications')
+        .update({ email: cleanEmail })
+        .eq('id', app.id);
+
+      if (updateEmailError) {
+        console.error('E-posta güncelleme hatası:', updateEmailError);
+      }
+
+      const cleanOrigin = window.location.origin.replace(/\s+$/, '');
+
+      // Güçlü geçici şifre oluştur
+      const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase() + '123!';
+
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password: tempPassword,
+        options: {
+          data: {
+            full_name: app.name,
+            role: 'parent'
+          },
+          emailRedirectTo: `${cleanOrigin}/velisifre`
+        }
+      });
+
+      if (authError) {
+        toast({
+          title: "Kullanıcı oluşturma hatası",
+          description: authError.message,
+          variant: "destructive"
+        });
+        setError('Kullanıcı oluşturulamadı: ' + authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Kullanıcı başarıyla oluşturulduysa, profile'daki name alanını güncelle
+      if (authData.user) {
+        const { error: profileUpdateError } = await supabase
+          .from('profiles')
+          .update({ name: app.name })
+          .eq('id', authData.user.id);
+
+        if (profileUpdateError) {
+          console.error('Profile name güncelleme hatası:', profileUpdateError);
+        }
+      }
+
+      const { error: updateError } = await supabase
+        .from('applications')
+        .update({ status: 'approved' })
+        .eq('id', app.id);
+        
+      if (updateError) {
+        toast({
+          title: "Başvuru güncelleme hatası",
+          description: updateError.message,
+          variant: "destructive"
+        });
+        setError('Başvuru güncellenemedi: ' + updateError.message);
+        setLoading(false);
+        return;
+      }
+
+      console.log(`Şifre belirleme e-postası gönderiliyor: ${app.email}, yönlendirme: ${cleanOrigin}/velisifre`);
+      const emailResult = await sendPasswordSetupEmail(app.email, app.name);
+      if (!emailResult.success) {
+        toast({
+          title: "E-posta gönderme uyarısı",
+          description: emailResult.error || "E-posta gönderilirken bir sorun oluştu",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Başarılı",
+          description: `${app.name} başvurusu onaylandı ve şifre belirleme e-postası gönderildi.`,
+          variant: "default"
+        });
+      }
+      
+      fetchApplications();
+    } catch (err) {
+      console.error("Onaylama işlemi sırasında hata:", err);
+      const errorMessage = err instanceof Error ? err.message : "Bilinmeyen hata";
+      toast({
+        title: "İşlem hatası",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      setError(`Onaylama işlemi sırasında hata oluştu: ${errorMessage}`);
+    } finally {
       setLoading(false);
-      return;
     }
-    // 2. Başvurunun status'unu 'approved' yap
-    await supabase.from('applications').update({ status: 'approved' }).eq('id', app.id);
-    fetchApplications();
-    setLoading(false);
   };
 
   const handleReject = async (app: Application) => {
     setLoading(true);
     setError(null);
-    await supabase.from('applications').update({ status: 'rejected' }).eq('id', app.id);
-    fetchApplications();
-    setLoading(false);
+    try {
+      const { error: rejectError } = await supabase
+        .from('applications')
+        .update({ status: 'rejected' })
+        .eq('id', app.id);
+        
+      if (rejectError) {
+        toast({
+          title: "Başvuru reddetme hatası",
+          description: rejectError.message,
+          variant: "destructive"
+        });
+        setError('Başvuru reddedilemedi: ' + rejectError.message);
+        return;
+      }
+      
+      toast({
+        title: "Başarılı",
+        description: `${app.name} başvurusu reddedildi.`,
+        variant: "default"
+      });
+      
+      fetchApplications();
+    } catch (err) {
+      console.error("Reddetme işlemi sırasında hata:", err);
+      const errorMessage = err instanceof Error ? err.message : "Bilinmeyen hata";
+      toast({
+        title: "İşlem hatası",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      setError(`Reddetme işlemi sırasında hata oluştu: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('tr-TR');
+  };
+
+  const translateStatus = (status: string) => {
+    return status === 'approved' ? 'Onaylandı' : 'Beklemede';
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-primary to-green-700 p-6 rounded-lg shadow-md text-white">
-        <h1 className="text-3xl font-bold">Admin Paneline Hoş Geldiniz!</h1>
-        <p className="mt-2 text-lg text-green-100">
-          Bu panel üzerinden web sitenizin içeriklerini kolayca yönetebilirsiniz.
-        </p>
-      </div>
-
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Hızlı Erişim</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {quickLinks.map((link) => (
-            <Link to={link.to} key={link.to} className="group">
-              <Card className="hover:shadow-xl hover:border-primary/50 transition-all duration-300 h-full flex flex-col">
-                <CardHeader className="flex flex-row items-center space-x-4 pb-3">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    {link.icon}
-                  </div>
-                  <CardTitle className="text-xl text-gray-800 group-hover:text-primary transition-colors">{link.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <CardDescription className="text-sm text-gray-600">{link.description}</CardDescription>
-                </CardContent>
-                <div className="p-4 pt-0 text-right">
-                    <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
-                </div>
-              </Card>
-            </Link>
-          ))}
+    <div className="container mx-auto p-4">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold mb-2">Admin Paneli</h1>
+        <div className="flex space-x-2 mb-4">
+          <Button 
+            variant={activeTab === 'applications' ? "default" : "outline"} 
+            onClick={() => setActiveTab('applications')}
+          >
+            Başvurular
+          </Button>
+          <Button 
+            variant={activeTab === 'users' ? "default" : "outline"} 
+            onClick={() => setActiveTab('users')}
+          >
+            Kullanıcılar
+          </Button>
         </div>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Genel İstatistikler</h2>
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Hata</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {activeTab === 'applications' && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <BarChart2 className="w-6 h-6 mr-2 text-primary" />
-              Site İstatistikleri
-            </CardTitle>
-            <CardDescription>
-              Bu bölümde sitenizle ilgili genel istatistikler gösterilecektir (örneğin, haber sayısı, galeri öğesi vb.).
-              Bu özellik gelecekte eklenecektir.
-            </CardDescription>
+            <CardTitle>Veli Başvuruları</CardTitle>
+            <CardDescription>Sisteme kayıt olmak isteyen velilerin başvuruları</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Yakında...</p>
-            {/* Örnek İstatistikler (ileride dinamik olacak)
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-500">Toplam Haber</h3>
-                <p className="text-2xl font-semibold text-gray-800">12</p>
+            {loading ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-500">Toplam Galeri Öğesi</h3>
-                <p className="text-2xl font-semibold text-gray-800">45</p>
+            ) : applications.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Adı Soyadı</TableHead>
+                      <TableHead>E-posta</TableHead>
+                      <TableHead>Telefon</TableHead>
+                      <TableHead>Başvuru Tarihi</TableHead>
+                      <TableHead>Durum</TableHead>
+                      <TableHead className="text-right">İşlemler</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {applications.map((app) => (
+                      <TableRow key={app.id}>
+                        <TableCell>{app.name}</TableCell>
+                        <TableCell>{app.email}</TableCell>
+                        <TableCell>{app.phone}</TableCell>
+                        <TableCell>{formatDate(app.created_at)}</TableCell>
+                        <TableCell>
+                          <Badge variant={app.status === 'approved' ? "default" : "secondary"}>
+                            {translateStatus(app.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {app.status === 'pending' && (
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleApprove(app)}
+                                disabled={loading}
+                              >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                                Onayla
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleReject(app)}
+                                disabled={loading}
+                              >
+                                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                                Reddet
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
-            </div>
-            */}
+            ) : (
+              <div className="text-center p-4">
+                <p>Henüz başvuru bulunmuyor.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
-      </div>
+      )}
 
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Bekleyen Başvurular</h2>
-        {loading && <p>Yükleniyor...</p>}
-        {error && <p className="text-red-600">{error}</p>}
-        {applications.length === 0 && !loading ? (
-          <p>Bekleyen başvuru yok.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border rounded-lg">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 border">Ad Soyad</th>
-                  <th className="px-4 py-2 border">E-posta</th>
-                  <th className="px-4 py-2 border">Telefon</th>
-                  <th className="px-4 py-2 border">Çocuk Adı</th>
-                  <th className="px-4 py-2 border">Başvuru Tarihi</th>
-                  <th className="px-4 py-2 border">İşlem</th>
-                </tr>
-              </thead>
-              <tbody>
-                {applications.map((app) => (
-                  <tr key={app.id}>
-                    <td className="px-4 py-2 border">{app.name}</td>
-                    <td className="px-4 py-2 border">{app.email}</td>
-                    <td className="px-4 py-2 border">{app.phone}</td>
-                    <td className="px-4 py-2 border">{app.child_name}</td>
-                    <td className="px-4 py-2 border">{new Date(app.created_at).toLocaleString()}</td>
-                    <td className="px-4 py-2 border space-x-2">
-                      <Button size="sm" onClick={() => handleApprove(app)} disabled={loading}>Onayla</Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleReject(app)} disabled={loading}>Reddet</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {activeTab === 'users' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Kayıtlı Kullanıcılar</CardTitle>
+            <CardDescription>Sistemdeki tüm kullanıcılar ve e-posta doğrulama durumları</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : users.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>E-posta</TableHead>
+                      <TableHead>İsim</TableHead>
+                      <TableHead>Rol</TableHead>
+                      <TableHead>Kayıt Tarihi</TableHead>
+                      <TableHead>E-posta Doğrulama</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.name || '-'}</TableCell>
+                        <TableCell>{user.role || '-'}</TableCell>
+                        <TableCell>{formatDate(user.created_at)}</TableCell>
+                        <TableCell>
+                          {user.email_confirmed_at ? (
+                            <Badge variant="default" className="bg-green-500 hover:bg-green-600">Doğrulanmış</Badge>
+                          ) : (
+                            <Badge variant="destructive">Doğrulanmamış</Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center p-4">
+                <p>Henüz kullanıcı bulunmuyor.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
