@@ -9,18 +9,20 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
+    server: {
+    host: true,
     headers: {
       // Security Headers
       'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
+      // Allow iframe for Builder.io preview
+      'X-Frame-Options': 'SAMEORIGIN',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
     },
     // CORS configuration for development
     cors: {
-      origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: true,
       credentials: true,
     },
   },
@@ -48,4 +50,3 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
   },
 })
-
