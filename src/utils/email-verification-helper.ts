@@ -208,7 +208,7 @@ export class EmailVerificationHelper {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidUsers = users.filter(user => !emailRegex.test(user.email));
       
-      let cleaned = 0;
+      const cleaned = 0;
       const details: any[] = [];
 
       for (const user of invalidUsers) {
