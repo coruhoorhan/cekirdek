@@ -208,6 +208,7 @@ export class EmailVerificationHelper {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalidUsers = users.filter(user => !emailRegex.test(user.email));
       
+      // eslint-disable-next-line prefer-const
       let cleaned = 0;
       const details: any[] = [];
 

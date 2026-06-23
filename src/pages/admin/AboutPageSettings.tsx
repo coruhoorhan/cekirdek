@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,7 +68,7 @@ const AboutPageSettings: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 İstatistikler
-                <Button size="sm" onClick={() => alert("Yeni istatistik ekleme formu açılacak.")}>
+                <Button size="sm" onClick={() => toast.success("Yeni istatistik ekleme formu açılacak.")}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Yeni İstatistik Ekle
                 </Button>
               </CardTitle>
@@ -82,10 +83,10 @@ const AboutPageSettings: React.FC = () => {
                       <p className="text-sm text-muted-foreground">İkon: {stat.iconName}</p>
                     </div>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => alert(`İstatistik ${stat.id} düzenlenecek.`)}>
+                      <Button variant="outline" size="sm" onClick={() => toast.success(`İstatistik ${stat.id} düzenlenecek.`)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="destructive" size="sm" onClick={() => alert(`İstatistik ${stat.id} silinecek.`)}>
+                      <Button variant="destructive" size="sm" onClick={() => toast.success(`İstatistik ${stat.id} silinecek.`)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -116,7 +117,7 @@ const AboutPageSettings: React.FC = () => {
                 />
               </CardContent>
               <CardFooter>
-                <Button onClick={() => alert("Misyon kaydedildi: " + mission)}>
+                <Button onClick={() => toast.success("Misyon kaydedildi: " + mission)}>
                   <Save className="mr-2 h-4 w-4" /> Misyonu Kaydet
                 </Button>
               </CardFooter>
@@ -137,7 +138,7 @@ const AboutPageSettings: React.FC = () => {
                 />
               </CardContent>
               <CardFooter>
-                <Button onClick={() => alert("Vizyon kaydedildi: " + vision)}>
+                <Button onClick={() => toast.success("Vizyon kaydedildi: " + vision)}>
                   <Save className="mr-2 h-4 w-4" /> Vizyonu Kaydet
                 </Button>
               </CardFooter>
@@ -151,7 +152,7 @@ const AboutPageSettings: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Eğitim İlkelerimiz
-                <Button size="sm" onClick={() => alert("Yeni ilke ekleme formu açılacak.")}>
+                <Button size="sm" onClick={() => toast.success("Yeni ilke ekleme formu açılacak.")}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Yeni İlke Ekle
                 </Button>
               </CardTitle>
@@ -173,7 +174,7 @@ const AboutPageSettings: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Tarihçemiz
-                <Button size="sm" onClick={() => alert("Yeni tarihçe öğesi ekleme formu açılacak.")}>
+                <Button size="sm" onClick={() => toast.success("Yeni tarihçe öğesi ekleme formu açılacak.")}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Yeni Öğe Ekle
                 </Button>
               </CardTitle>
