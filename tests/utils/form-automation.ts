@@ -79,7 +79,7 @@ export class FormAutomation {
       console.log(`✅ ${fieldName} alanı dolduruldu: ${value}`);
       return true;
     } catch (_error) {
-      console.error(`❌ ${fieldName} alanı doldurulurken hata:`, error);
+      console.error(`❌ ${fieldName} alanı doldurulurken hata:`, _error);
       return false;
     }
   }

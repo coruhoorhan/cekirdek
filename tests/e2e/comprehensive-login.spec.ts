@@ -93,8 +93,8 @@ test.describe('Kapsamlı Login ve Admin İşlemleri Testleri', () => {
       }
 
     } catch (_error) {
-      console.error('❌ Admin login hatası:', error);
-      return { success: false, message: `Admin login hatası: ${error}` };
+      console.error('❌ Admin login hatası:', _error);
+      return { success: false, message: `Admin login hatası: ${_error}` };
     }
   });
 
@@ -133,8 +133,8 @@ test.describe('Kapsamlı Login ve Admin İşlemleri Testleri', () => {
       }
 
     } catch (_error) {
-      console.error('❌ Veli login hatası:', error);
-      return { success: false, message: `Veli login hatası: ${error}` };
+      console.error('❌ Veli login hatası:', _error);
+      return { success: false, message: `Veli login hatası: ${_error}` };
     }
   });
 
@@ -173,8 +173,8 @@ test.describe('Kapsamlı Login ve Admin İşlemleri Testleri', () => {
       }
 
     } catch (_error) {
-      console.error('❌ Öğretmen login hatası:', error);
-      return { success: false, message: `Öğretmen login hatası: ${error}` };
+      console.error('❌ Öğretmen login hatası:', _error);
+      return { success: false, message: `Öğretmen login hatası: ${_error}` };
     }
   });
 });
@@ -248,8 +248,8 @@ test.describe('Admin Panel İşlemleri Testleri', () => {
       }
 
     } catch (_error) {
-      console.error('❌ Başvuru onaylama hatası:', error);
-      return { success: false, message: `Başvuru onaylama hatası: ${error}` };
+      console.error('❌ Başvuru onaylama hatası:', _error);
+      return { success: false, message: `Başvuru onaylama hatası: ${_error}` };
     }
   });
 
@@ -297,8 +297,8 @@ test.describe('Admin Panel İşlemleri Testleri', () => {
       }
 
     } catch (_error) {
-      console.error('❌ Başvuru reddetme hatası:', error);
-      return { success: false, message: `Başvuru reddetme hatası: ${error}` };
+      console.error('❌ Başvuru reddetme hatası:', _error);
+      return { success: false, message: `Başvuru reddetme hatası: ${_error}` };
     }
   });
 });

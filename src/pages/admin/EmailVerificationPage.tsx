@@ -37,7 +37,7 @@ const EmailVerificationPage: React.FC = () => {
       const reportData = await EmailVerificationHelper.generateVerificationReport();
       setReport(reportData);
     } catch (_error) {
-      console.error('Rapor yükleme hatası:', error);
+      console.error('Rapor yükleme hatası:', _error);
       toast({
         title: "Hata",
         description: "E-posta doğrulama raporu yüklenemedi.",
