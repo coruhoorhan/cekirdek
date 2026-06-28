@@ -26,7 +26,7 @@ export class DataConsistencyFixer {
       // 1. Applications tablosundaki tüm kayıtları al
       const { data: applications, error: appError } = await supabase
         .from('applications')
-        .select('*');
+        .select('email, status');
 
       if (appError) {
         console.error('Applications sorgu hatası:', appError);
@@ -46,7 +46,7 @@ export class DataConsistencyFixer {
       // 3. Profiles tablosundaki tüm profilleri al
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select('*');
+        .select('id, name');
 
       if (profileError) {
         console.error('Profiles sorgu hatası:', profileError);
