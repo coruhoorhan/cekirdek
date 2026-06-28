@@ -1,5 +1,6 @@
 import { chromium, FullConfig } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
+import * as fs from 'fs';
 
 async function globalSetup(config: FullConfig) {
   console.log('🚀 Global Setup: Preparing test environment...');
@@ -128,7 +129,7 @@ async function createTestAdminSession() {
     const storageState = await context.storageState();
     
     // Session'ı dosyaya kaydet
-    require('fs').writeFileSync('tests/fixtures/admin-session.json', JSON.stringify(storageState, null, 2));
+    fs.writeFileSync('tests/fixtures/admin-session.json', JSON.stringify(storageState, null, 2));
     
     console.log('✅ Admin session created and saved');
   } catch (error) {
