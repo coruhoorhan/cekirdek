@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { chromium, FullConfig } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
 
@@ -6,8 +7,8 @@ async function globalSetup(config: FullConfig) {
 
   // Supabase test client
   const supabase = createClient(
-    process.env.VITE_SUPABASE_URL || 'https://uunmmuybfcqiyxbnncjj.supabase.co',
-    process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1bm1tdXliZmNxaXl4Ym5uY2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMDA0MTIsImV4cCI6MjA2NjU3NjQxMn0.jp9LSv7iSc_W7bQkuhXYLWm6ngTZBe11uH8hsVKTYX4'
+    process.env.VITE_SUPABASE_URL || '',
+    process.env.VITE_SUPABASE_ANON_KEY || ''
   );
 
   try {
@@ -128,7 +129,7 @@ async function createTestAdminSession() {
     const storageState = await context.storageState();
     
     // Session'ı dosyaya kaydet
-    require('fs').writeFileSync('tests/fixtures/admin-session.json', JSON.stringify(storageState, null, 2));
+    fs.writeFileSync('tests/fixtures/admin-session.json', JSON.stringify(storageState, null, 2));
     
     console.log('✅ Admin session created and saved');
   } catch (error) {

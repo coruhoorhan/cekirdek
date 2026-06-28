@@ -9,7 +9,7 @@ export const CSP_DIRECTIVES = {
     "'self'",
     "'unsafe-inline'", // Vite development için gerekli
     "'unsafe-eval'", // Development için gerekli, production'da kaldırılacak
-    'https://uunmmuybfcqiyxbnncjj.supabase.co',
+    import.meta.env.VITE_SUPABASE_URL || '',
   ],
   'style-src': [
     "'self'",
@@ -20,7 +20,7 @@ export const CSP_DIRECTIVES = {
     "'self'",
     'data:',
     'blob:',
-    'https://uunmmuybfcqiyxbnncjj.supabase.co',
+    import.meta.env.VITE_SUPABASE_URL || '',
     'https://*.supabase.co',
   ],
   'font-src': [
@@ -29,9 +29,9 @@ export const CSP_DIRECTIVES = {
   ],
   'connect-src': [
     "'self'",
-    'https://uunmmuybfcqiyxbnncjj.supabase.co',
+    import.meta.env.VITE_SUPABASE_URL || '',
     'https://*.supabase.co',
-    'wss://uunmmuybfcqiyxbnncjj.supabase.co', // Realtime için
+    import.meta.env.VITE_SUPABASE_URL ? import.meta.env.VITE_SUPABASE_URL.replace('http', 'ws') : '', // Realtime için
   ],
   'frame-src': ["'none'"],
   'object-src': ["'none'"],
@@ -164,7 +164,7 @@ export const validateEnvironment = (): void => {
   ];
   
   const missingVars = requiredEnvVars.filter(
-    varName => !import.meta.env[varName]
+    varName => !(import.meta.env as any)[varName]
   );
   
   if (missingVars.length > 0) {
