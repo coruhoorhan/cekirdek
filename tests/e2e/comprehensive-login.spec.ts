@@ -92,7 +92,7 @@ test.describe('Kapsamlı Login ve Admin İşlemleri Testleri', () => {
         return { success: false, message: 'Admin dashboard\'a yönlendirilemedi' };
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Admin login hatası:', error);
       return { success: false, message: `Admin login hatası: ${error}` };
     }
@@ -132,7 +132,7 @@ test.describe('Kapsamlı Login ve Admin İşlemleri Testleri', () => {
         return { success: false, message: 'Veli login başarısız' };
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Veli login hatası:', error);
       return { success: false, message: `Veli login hatası: ${error}` };
     }
@@ -172,7 +172,7 @@ test.describe('Kapsamlı Login ve Admin İşlemleri Testleri', () => {
         return { success: false, message: 'Öğretmen login başarısız' };
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Öğretmen login hatası:', error);
       return { success: false, message: `Öğretmen login hatası: ${error}` };
     }
@@ -234,7 +234,7 @@ test.describe('Admin Panel İşlemleri Testleri', () => {
             await waitForToast(page, 'başarıyla|onaylandı');
             console.log('✅ Başvuru onaylama başarılı');
             return { success: true, message: 'Başvuru onaylama başarılı' };
-          } catch (error) {
+          } catch (_error) {
             console.log('⚠️ Toast mesajı görünmedi ama işlem devam etti');
             return { success: true, message: 'Başvuru onaylama tamamlandı (toast yok)' };
           }
@@ -247,7 +247,7 @@ test.describe('Admin Panel İşlemleri Testleri', () => {
         return { success: true, message: 'Bekleyen başvuru yok' };
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Başvuru onaylama hatası:', error);
       return { success: false, message: `Başvuru onaylama hatası: ${error}` };
     }
@@ -283,7 +283,7 @@ test.describe('Admin Panel İşlemleri Testleri', () => {
             await waitForToast(page, 'reddedildi|rejected');
             console.log('✅ Başvuru reddetme başarılı');
             return { success: true, message: 'Başvuru reddetme başarılı' };
-          } catch (error) {
+          } catch (_error) {
             console.log('⚠️ Toast mesajı görünmedi ama işlem devam etti');
             return { success: true, message: 'Başvuru reddetme tamamlandı (toast yok)' };
           }
@@ -296,7 +296,7 @@ test.describe('Admin Panel İşlemleri Testleri', () => {
         return { success: true, message: 'Bekleyen başvuru yok' };
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error('❌ Başvuru reddetme hatası:', error);
       return { success: false, message: `Başvuru reddetme hatası: ${error}` };
     }

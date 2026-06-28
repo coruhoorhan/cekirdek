@@ -36,7 +36,7 @@ const EmailVerificationPage: React.FC = () => {
     try {
       const reportData = await EmailVerificationHelper.generateVerificationReport();
       setReport(reportData);
-    } catch (error) {
+    } catch (_error) {
       console.error('Rapor yükleme hatası:', error);
       toast({
         title: "Hata",
@@ -65,7 +65,7 @@ const EmailVerificationPage: React.FC = () => {
           variant: "destructive"
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Hata",
         description: "E-posta gönderilirken bir hata oluştu.",
@@ -89,7 +89,7 @@ const EmailVerificationPage: React.FC = () => {
 
       // Raporu yenile
       await loadReport();
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Hata",
         description: "Toplu e-posta gönderimi sırasında bir hata oluştu.",

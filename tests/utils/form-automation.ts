@@ -78,7 +78,7 @@ export class FormAutomation {
       
       console.log(`✅ ${fieldName} alanı dolduruldu: ${value}`);
       return true;
-    } catch (error) {
+    } catch (_error) {
       console.error(`❌ ${fieldName} alanı doldurulurken hata:`, error);
       return false;
     }
@@ -298,7 +298,7 @@ export class FormAutomation {
           await button.click();
           console.log('✅ Form submit edildi');
           return true;
-        } catch (error) {
+        } catch (_error) {
           console.warn(`⚠️ Submit button tıklanamadı: ${selector}`);
         }
       }
@@ -363,7 +363,7 @@ export class FormAutomation {
       for (let i = 0; i < count; i++) {
         try {
           await inputs.nth(i).clear();
-        } catch (error) {
+        } catch (_error) {
           // Ignore errors for readonly or disabled fields
         }
       }

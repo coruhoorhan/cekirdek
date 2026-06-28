@@ -37,7 +37,7 @@ test.describe('Veri Girişi Otomasyonu E2E Testleri', () => {
     try {
       await waitForToast(page, 'başarıyla');
       console.log('✅ Otomatik kayıt başarılı');
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ Toast mesajı görünmedi, ancak test devam ediyor');
     }
 
@@ -45,7 +45,7 @@ test.describe('Veri Girişi Otomasyonu E2E Testleri', () => {
     try {
       await DatabaseHelpers.deleteTestApplication(testUser.email);
       console.log('🧹 Test verileri temizlendi');
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ Test verisi temizleme hatası:', error);
     }
 
@@ -101,7 +101,7 @@ test.describe('Veri Girişi Otomasyonu E2E Testleri', () => {
     try {
       await waitForToast(page, 'e-posta gönderildi|başarıyla');
       console.log('✅ Otomatik şifre sıfırlama başarılı');
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ Toast mesajı görünmedi');
     }
   });
@@ -146,7 +146,7 @@ test.describe('Veri Girişi Otomasyonu E2E Testleri', () => {
       for (const email of createdUsers) {
         try {
           await DatabaseHelpers.deleteTestApplication(email);
-        } catch (error) {
+        } catch (_error) {
           console.warn(`⚠️ ${email} temizleme hatası:`, error);
         }
       }
@@ -251,7 +251,7 @@ test.describe('Veri Girişi Otomasyonu E2E Testleri', () => {
     // Test verilerini temizle
     try {
       await DatabaseHelpers.deleteTestApplication(testUser.email);
-    } catch (error) {
+    } catch (_error) {
       console.warn('⚠️ Test verisi temizleme hatası:', error);
     }
 
@@ -294,7 +294,7 @@ test.describe('Veri Girişi Otomasyonu E2E Testleri', () => {
       // Test verilerini temizle
       try {
         await DatabaseHelpers.deleteTestApplication(testUser.email);
-      } catch (error) {
+      } catch (_error) {
         console.warn('⚠️ Test verisi temizleme hatası:', error);
       }
     }
