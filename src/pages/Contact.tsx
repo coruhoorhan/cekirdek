@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useToast } from '@/hooks/use-toast'
 import { FiPhone, FiMail, FiMapPin, FiClock, FiSend, FiUser, FiMessageSquare } from 'react-icons/fi'
 import { FaWhatsapp, FaInstagram, FaFacebook } from 'react-icons/fa'
 
 const Contact = () => {
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -29,7 +31,10 @@ const Contact = () => {
     // Form submission simulation
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.')
+    toast({
+      title: "Başarılı",
+      description: "Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.",
+    })
     setFormData({
       name: '',
       phone: '',

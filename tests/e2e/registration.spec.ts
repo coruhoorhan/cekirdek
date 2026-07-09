@@ -91,7 +91,7 @@ test.describe('Kayıt Olma Süreci E2E Testleri', () => {
         const authUser = await DatabaseHelpers.getUserByEmail(testUser.email);
         expect(authUser).toBeTruthy();
         expect(authUser.email).toBe(testUser.email);
-        console.log('✅ Kullanıcı database'de oluşturuldu');
+        console.log("✅ Kullanıcı database'de oluşturuldu");
       } catch (error) {
         console.warn('⚠️ Database kontrolü başarısız:', error);
       }
