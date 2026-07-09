@@ -270,7 +270,7 @@ export class FormAutomation {
    */
   private async fillEmergencyContacts(contacts: any[]): Promise<void> {
     for (let i = 0; i < Math.min(contacts.length, 2); i++) {
-      const contact = contacts[i];
+      const contact = contacts[i as keyof typeof contacts];
       const index = i + 1;
 
       await this.fillFormField(`emergencyContact${index}Name`, contact.name);

@@ -196,11 +196,13 @@ export class PageHelpers {
  */
 export class AssertionHelpers {
   static async expectPageTitle(page: Page, expectedTitle: string) {
-    await expect(page).toHaveTitle(new RegExp(expectedTitle, 'i'));
+    const escapedTitle = expectedTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await expect(page).toHaveTitle(new RegExp(escapedTitle, 'i'));
   }
 
   static async expectUrlContains(page: Page, urlPart: string) {
-    await expect(page).toHaveURL(new RegExp(urlPart));
+    const escapedUrlPart = urlPart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await expect(page).toHaveURL(new RegExp(escapedUrlPart));
   }
 
   static async expectElementCount(page: Page, selector: string, count: number) {

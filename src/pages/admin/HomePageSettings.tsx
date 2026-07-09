@@ -1,3 +1,4 @@
+import { toast } from "@/hooks/use-toast"
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -81,7 +82,7 @@ const HomePageSettings: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Hero Slider Öğeleri
-                <Button size="sm" onClick={() => alert("Yeni slayt ekleme formu açılacak.")}>
+                <Button size="sm" onClick={() => toast({ description: "Yeni slayt ekleme formu açılacak." })}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Yeni Slayt Ekle
                 </Button>
               </CardTitle>
@@ -98,10 +99,10 @@ const HomePageSettings: React.FC = () => {
                       <p className="text-xs text-muted-foreground mt-1">Resim: {slide.image}</p>
                     </div>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => alert(`Slayt ${slide.id} düzenlenecek.`)}>
+                      <Button variant="outline" size="sm" onClick={() => toast({ description: `Slayt ${slide.id} düzenlenecek.` })}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="destructive" size="sm" onClick={() => alert(`Slayt ${slide.id} silinecek.`)}>
+                      <Button variant="destructive" size="sm" onClick={() => toast({ description: `Slayt ${slide.id} silinecek.` })}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -129,7 +130,7 @@ const HomePageSettings: React.FC = () => {
               />
             </CardContent>
             <CardFooter>
-              <Button onClick={() => alert("Kuruluş amacı kaydedildi: " + kurulusAmaci)}>
+              <Button onClick={() => toast({ description: "Kuruluş amacı kaydedildi: " + kurulusAmaci })}>
                 <Save className="mr-2 h-4 w-4" /> Değişiklikleri Kaydet
               </Button>
             </CardFooter>
@@ -142,7 +143,7 @@ const HomePageSettings: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Değerlerimiz
-                <Button size="sm" onClick={() => alert("Yeni değer ekleme formu açılacak.")}>
+                <Button size="sm" onClick={() => toast({ description: "Yeni değer ekleme formu açılacak." })}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Yeni Değer Ekle
                 </Button>
               </CardTitle>
@@ -164,7 +165,7 @@ const HomePageSettings: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Branş Dersleri
-                <Button size="sm" onClick={() => alert("Yeni branş dersi ekleme formu açılacak.")}>
+                <Button size="sm" onClick={() => toast({ description: "Yeni branş dersi ekleme formu açılacak." })}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Yeni Ders Ekle
                 </Button>
               </CardTitle>
