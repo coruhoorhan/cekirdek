@@ -164,6 +164,7 @@ export const validateEnvironment = (): void => {
   ];
   
   const missingVars = requiredEnvVars.filter(
+    // eslint-disable-next-line security/detect-object-injection
     varName => !import.meta.env[varName]
   );
   
@@ -195,6 +196,7 @@ export const logSecurityEvent = (
   
   // Development logging
   if (!import.meta.env.PROD) {
+    // eslint-disable-next-line no-console
     console.warn('Security Event:', logData);
   }
   

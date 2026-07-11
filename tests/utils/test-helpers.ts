@@ -41,6 +41,7 @@ export const TEST_DATA = {
  * Login helper function
  */
 export async function loginAs(page: Page, role: 'admin' | 'teacher' | 'parent') {
+  // eslint-disable-next-line security/detect-object-injection
   const credentials = TEST_CREDENTIALS[role];
   
   await page.goto('/login');
@@ -197,11 +198,13 @@ export class PageHelpers {
 export class AssertionHelpers {
   static async expectPageTitle(page: Page, expectedTitle: string) {
     const escapedTitle = expectedTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // eslint-disable-next-line security/detect-non-literal-regexp
     await expect(page).toHaveTitle(new RegExp(escapedTitle, 'i'));
   }
 
   static async expectUrlContains(page: Page, urlPart: string) {
     const escapedUrlPart = urlPart.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // eslint-disable-next-line security/detect-non-literal-regexp
     await expect(page).toHaveURL(new RegExp(escapedUrlPart));
   }
 

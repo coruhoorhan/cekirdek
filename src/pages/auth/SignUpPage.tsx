@@ -129,6 +129,7 @@ const SignUpPage: React.FC = () => {
 
       // 2. Her çocuk için işlemler
       for (let i = 0; i < children.length; i++) {
+        // eslint-disable-next-line security/detect-object-injection
         const child = children[i];
         
         if (child.name.trim() === '') continue;
