@@ -41,6 +41,7 @@ export const TEST_DATA = {
  * Login helper function
  */
 export async function loginAs(page: Page, role: 'admin' | 'teacher' | 'parent') {
+  // eslint-disable-next-line security/detect-object-injection
   const credentials = TEST_CREDENTIALS[role];
   
   await page.goto('/login');

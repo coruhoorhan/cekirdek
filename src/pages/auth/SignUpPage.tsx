@@ -128,12 +128,12 @@ const SignUpPage: React.FC = () => {
       console.log("Application created with ID:", applicationId);
 
       // 2. Her çocuk için işlemler
-      for (let i = 0; i < children.length; i++) {
-        const child = children[i];
-        
+      let i = 0;
+      for (const child of children) {
+        i++;
         if (child.name.trim() === '') continue;
         
-        console.log(`Processing child ${i+1}:`, child.name);
+        console.log(`Processing child ${i}:`, child.name);
         
         // a. Çocuk kaydını ekle - burada direkt supabase kullanmaya devam ediyoruz
         const { data: childData, error: childError } = await supabase
