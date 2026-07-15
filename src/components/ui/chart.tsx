@@ -351,7 +351,9 @@ function getPayloadConfigFromPayload(
   }
 
   return configLabelKey in config
+    // eslint-disable-next-line security/detect-object-injection
     ? config[configLabelKey]
+    // eslint-disable-next-line security/detect-object-injection
     : config[key as keyof typeof config]
 }
 

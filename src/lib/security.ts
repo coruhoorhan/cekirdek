@@ -158,14 +158,15 @@ export const signupRateLimiter = new RateLimiter(3, 60 * 60 * 1000); // 3 attemp
 
 // Environment validation
 export const validateEnvironment = (): void => {
-  const requiredEnvVars = [
-    'VITE_SUPABASE_URL',
-    'VITE_SUPABASE_ANON_KEY',
-  ];
-  
-  const missingVars = requiredEnvVars.filter(
-    varName => !import.meta.env[varName]
-  );
+  const missingVars: string[] = [];
+
+  if (!import.meta.env.VITE_SUPABASE_URL) {
+    missingVars.push('VITE_SUPABASE_URL');
+  }
+
+  if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    missingVars.push('VITE_SUPABASE_ANON_KEY');
+  }
   
   if (missingVars.length > 0) {
     throw new Error(
