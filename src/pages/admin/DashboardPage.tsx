@@ -75,7 +75,7 @@ const DashboardPage: React.FC = () => {
     setError(null);
     const { data, error } = await supabase
       .from('applications')
-      .select('*')
+      .select('id, email, name, child_name, phone, status, created_at')
       .eq('status', 'pending')
       .order('created_at', { ascending: true });
     if (error) setError(error.message);

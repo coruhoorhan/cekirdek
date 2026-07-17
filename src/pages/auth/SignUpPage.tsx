@@ -109,7 +109,7 @@ const SignUpPage: React.FC = () => {
             status: 'pending',
           },
         ])
-        .select();
+        .select('id');
 
       if (appError) {
         console.error("Supabase application insert error:", JSON.stringify(appError, null, 2));
@@ -148,7 +148,7 @@ const SignUpPage: React.FC = () => {
               note: child.note || null,
             },
           ])
-          .select();
+          .select('id');
           
         if (childError) {
           console.error(`Error inserting child ${i+1}:`, childError);
