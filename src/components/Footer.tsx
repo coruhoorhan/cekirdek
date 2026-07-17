@@ -25,13 +25,32 @@ const Footer = () => {
               doğa ile iç içe, sevgi dolu bir eğitim ortamı sunuyoruz.
             </p>
             <div className="flex space-x-3">
-              <a href="#" className="bg-green-700 p-2 rounded-full hover:bg-green-600 transition-colors">
+              {/* TODO: Replace placeholder URLs with real social media links */}
+              <a
+                href="https://wa.me/905555555555"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp ile iletişime geç"
+                className="bg-green-700 p-2 rounded-full hover:bg-green-600 transition-colors"
+              >
                 <FaWhatsapp className="w-5 h-5" />
               </a>
-              <a href="#" className="bg-green-700 p-2 rounded-full hover:bg-green-600 transition-colors">
+              <a
+                href="https://instagram.com/cekirdek"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram sayfamız"
+                className="bg-green-700 p-2 rounded-full hover:bg-green-600 transition-colors"
+              >
                 <FaInstagram className="w-5 h-5" />
               </a>
-              <a href="#" className="bg-green-700 p-2 rounded-full hover:bg-green-600 transition-colors">
+              <a
+                href="https://facebook.com/cekirdek"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook sayfamız"
+                className="bg-green-700 p-2 rounded-full hover:bg-green-600 transition-colors"
+              >
                 <FaFacebook className="w-5 h-5" />
               </a>
             </div>
