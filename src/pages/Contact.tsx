@@ -216,11 +216,12 @@ const Contact = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">
+                    <label htmlFor="contact-name" className="block text-gray-700 font-medium mb-2">
                       <FiUser className="inline w-4 h-4 mr-2" />
                       Ad Soyad *
                     </label>
                     <input
+                      id="contact-name"
                       type="text"
                       name="name"
                       value={formData.name}
@@ -231,11 +232,12 @@ const Contact = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 font-medium mb-2">
+                    <label htmlFor="contact-phone" className="block text-gray-700 font-medium mb-2">
                       <FiPhone className="inline w-4 h-4 mr-2" />
                       Telefon *
                     </label>
                     <input
+                      id="contact-phone"
                       type="tel"
                       name="phone"
                       value={formData.phone}
@@ -248,11 +250,12 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="contact-email" className="block text-gray-700 font-medium mb-2">
                     <FiMail className="inline w-4 h-4 mr-2" />
                     E-posta *
                   </label>
                   <input
+                    id="contact-email"
                     type="email"
                     name="email"
                     value={formData.email}
@@ -264,10 +267,11 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="contact-subject" className="block text-gray-700 font-medium mb-2">
                     Konu
                   </label>
                   <select
+                    id="contact-subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
@@ -283,11 +287,12 @@ const Contact = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">
+                  <label htmlFor="contact-message" className="block text-gray-700 font-medium mb-2">
                     <FiMessageSquare className="inline w-4 h-4 mr-2" />
                     Mesaj *
                   </label>
                   <textarea
+                    id="contact-message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
