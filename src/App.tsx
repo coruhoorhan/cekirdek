@@ -18,6 +18,7 @@ import Gallery from './pages/Gallery';
 import News from './pages/News';
 import Teachers from './pages/Teachers';
 import Contact from './pages/Contact';
+import NotFound from './pages/NotFound';
 
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
@@ -67,6 +68,9 @@ function App() {
                 <Route path="/duyurular" element={<News />} />
                 <Route path="/iletisim" element={<Contact />} />
                 {/* Diğer site sayfaları buraya eklenebilir */}
+
+                {/* 404 - Bilinmeyen site yolları için catch-all */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </SiteLayout>
           }

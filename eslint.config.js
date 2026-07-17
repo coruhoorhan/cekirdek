@@ -29,10 +29,14 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       'security': security,
+      'jsx-a11y': jsxA11y,
     },
     rules: {
       // React rules
       ...reactHooks.configs.recommended.rules,
+
+      // Accessibility rules
+      ...jsxA11y.configs.recommended.rules,
 
       // Security rules
       'security/detect-object-injection': 'warn',
