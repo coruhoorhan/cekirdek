@@ -266,6 +266,12 @@ const DashboardPage: React.FC = () => {
           >
             Kullanıcılar
           </Button>
+          <Link to="/admin/user-management">
+            <Button variant="outline" className="bg-primary/5 hover:bg-primary/10 border-primary/20">
+              <Users className="mr-2 h-4 w-4" />
+              Kullanıcı Ekle
+            </Button>
+          </Link>
         </div>
       </div>
 
