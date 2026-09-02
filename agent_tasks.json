@@ -31,7 +31,7 @@
       "area": "admin-panel",
       "risk": "low",
       "title": "Kullanici bilgilerini duzenleme arayuzu",
-      "description": "Admin panelinde mevcut kullanicilarin bilgilerini duzenleme formu. Her kullanici satirinda 'Duzenle' butonu, tiklaninca form acilir ve kaydedilir.",
+      "description": "Admin panelinde mevcut kullanicilarin bilgilerini duzenleme formu. Her kullanici satirinda 'Duzenle' butonu; tiklaninca form mevcut bilgilerle acilir, kaydedilir. ONCEN CEVAPLANMIS NOKTALAR (clarification gerekmez): (1) Aktif/pasif: profiles tablosunda mevcut bir is_active/status alani YOK. UI'da Switch ile is_active yonet ve supabase.from('profiles').upsert({ id, is_active }) kullan. Supabase'de kolon yoksa bunu PR aciklamasina not et (dashboard'dan boolean kolon eklenecek); migration dosyasi OLUSTURMA (allowed_paths disi). (2) Rol gecerli degerleri: 'admin', 'teacher', 'parent'. (3) Kaydetme hatasinda toast ile anlamli uyari; iptal butonu formu degisiklik yapmadan kapatir.",
       "allowed_paths": [
         "src/pages/admin/",
         "src/components/"
