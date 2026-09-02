@@ -44,9 +44,9 @@ Bu döküman, anaokulu yönetim sistemi projesinin geliştirme adımlarını det
 *   **B. Admin Paneli - Kullanıcı Yönetimi:**
     *   [x] Kullanıcıları (Admin, Öğretmen, Veli) listeleme arayüzü. (UserManagementPage.tsx oluşturuldu)
         *   [x] Filtreleme (role, isme göre vb.) ve arama. (Tab sistemi ile rol filtreleme eklendi)
-    *   [ ] Yeni kullanıcı (Öğretmen, Veli) ekleme formu ve işlevselliği (Admin tarafından).
-        *   [ ] Rol atama.
-        *   [ ] Geçici şifre oluşturma veya e-posta ile davet gönderme.
+    *   [x] Yeni kullanıcı (Öğretmen, Veli) ekleme formu ve işlevselliği (Admin tarafından).
+        *   [x] Rol atama.
+        *   [x] Geçici şifre oluşturma veya e-posta ile davet gönderme.
     *   [ ] Kullanıcı bilgilerini düzenleme arayüzü.
     *   [ ] Kullanıcı rolünü değiştirme.
     *   [ ] Kullanıcı hesabını aktifleştirme/pasifleştirme.

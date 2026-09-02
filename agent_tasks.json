@@ -7,7 +7,7 @@
   "tasks": [
     {
       "id": "cekirdek-001",
-      "status": "todo",
+      "status": "done",
       "area": "admin-panel",
       "risk": "low",
       "title": "Admin kullanici ekleme formu ve islevselligi",
