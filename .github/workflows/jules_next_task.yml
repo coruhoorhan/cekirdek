@@ -9,10 +9,12 @@ on:
 jobs:
   next-task:
     runs-on: ubuntu-latest
+    # Jules opens PRs as the repo owner (coruhoorhan), so trigger on any
+    # merged PR; task-authoring PRs from the Magda bridge (magda/*) are
+    # handled via dedup exclusion below, not via the trigger condition.
     if: >
       github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true &&
-       github.event.pull_request.user.login == 'google-jules[bot]')
+      github.event.pull_request.merged == true
 
     steps:
       - uses: actions/checkout@v4
@@ -35,8 +37,7 @@ jobs:
             cmd = [
                 "gh", "pr", "list",
                 "--state", state,
-                "--author", "google-jules[bot]",
-                "--json", "title,body",
+                "--json", "title,body,headRefName",
                 "--limit", "20",
             ]
             try:
@@ -45,6 +46,11 @@ jobs:
                     continue
                 prs = json.loads(res.stdout)
                 for pr in prs:
+                    # magda/* PRs only ADD tasks to the manifest; their bodies
+                    # mention the task id/title, so they must not be treated as
+                    # evidence that the task is already implemented.
+                    if str(pr.get("headRefName", "")).startswith("magda/"):
+                        continue
                     exclusions.append(norm(pr.get("title", "")))
                     exclusions.append(norm(pr.get("body", "")))
             except Exception as exc:
@@ -115,7 +121,7 @@ jobs:
                   "3. Implement the ENTIRE task as described (code + integration).\n"
                   "4. Respect the allowed_paths declared by the task; do not refactor unrelated code.\n"
                   "5. Run the repository's own build/lint commands to verify before opening the PR.\n"
-                  "6. Open ONE pull request implementing the entire task.\n"
+                  "6. Open ONE pull request implementing the entire task; make the FIRST line of the PR body exactly 'task-id: <id>' using the id field from the TASK json.\n"
                   "7. NEVER ask the user anything. Always decide and proceed autonomously.\n\n"
                   "STRICT RULES:\n"
                   f"- Work ONLY in the target repository: {target}.\n"
