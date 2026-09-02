@@ -12,6 +12,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { sendPasswordSetupEmail } from '@/lib/emailService';
 
 interface AuthUser {
@@ -30,6 +32,7 @@ interface Profile {
   name: string | null;
   role: string;
   created_at: string;
+  is_active?: boolean;
 }
 
 interface Application {
@@ -66,6 +69,10 @@ const UserManagementPage: React.FC = () => {
     email: '',
     role: 'parent',
   });
+
+  // Role change confirmation state
+  const [roleChangeDialog, setRoleChangeDialog] = useState(false);
+  const [pendingRoleChange, setPendingRoleChange] = useState<{userId: string, role: string, userName: string | null} | null>(null);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [createdUserTempPassword, setCreatedUserTempPassword] = useState<string | null>(null);
   const [creationMethod, setCreationMethod] = useState<'temp_password' | 'invite_email'>('temp_password');
@@ -181,7 +188,7 @@ const UserManagementPage: React.FC = () => {
       // Profiles
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id, name, role, created_at')
+        .select('id, name, role, created_at, is_active')
         .order('created_at', { ascending: false });
 
       if (profileError) {
@@ -272,6 +279,77 @@ const UserManagementPage: React.FC = () => {
       toast({
         title: "Hata",
         description: "E-posta gönderilirken bir hata oluştu",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleRoleChangeRequest = (userId: string, newRole: string) => {
+    const profile = profiles.find(p => p.id === userId);
+    if (!profile) return;
+
+    // Don't show dialog if role is the same
+    if (profile.role === newRole) return;
+
+    setPendingRoleChange({ userId, role: newRole, userName: profile.name });
+    setRoleChangeDialog(true);
+  };
+
+  const confirmRoleChange = async () => {
+    if (!pendingRoleChange) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: pendingRoleChange.role })
+        .eq('id', pendingRoleChange.userId);
+
+      if (error) throw error;
+
+      // Update local state
+      setProfiles(profiles.map(p =>
+        p.id === pendingRoleChange.userId ? { ...p, role: pendingRoleChange.role } : p
+      ));
+
+      toast({
+        title: "Rol güncellendi",
+        description: "Kullanıcı rolü başarıyla değiştirildi.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Hata",
+        description: "Rol güncellenirken bir hata oluştu: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setRoleChangeDialog(false);
+      setPendingRoleChange(null);
+    }
+  };
+
+  const handleStatusToggle = async (userId: string, currentStatus: boolean) => {
+    try {
+      const newStatus = !currentStatus;
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: newStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      // Update local state
+      setProfiles(profiles.map(p =>
+        p.id === userId ? { ...p, is_active: newStatus } : p
+      ));
+
+      toast({
+        title: newStatus ? "Kullanıcı aktifleştirildi" : "Kullanıcı pasife alındı",
+        description: newStatus ? "Kullanıcı artık sisteme giriş yapabilir." : "Kullanıcı artık sisteme giriş yapamaz.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı durumu güncellenirken bir hata oluştu: " + error.message,
         variant: "destructive"
       });
     }
@@ -378,7 +456,9 @@ const UserManagementPage: React.FC = () => {
                     <TableHead>ID</TableHead>
                     <TableHead>Ad</TableHead>
                     <TableHead>Rol</TableHead>
+                    <TableHead>Durum</TableHead>
                     <TableHead>Oluşturma Tarihi</TableHead>
+                    <TableHead>İşlemler</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -391,7 +471,34 @@ const UserManagementPage: React.FC = () => {
                           {profile.role}
                         </Badge>
                       </TableCell>
+                      <TableCell>
+                        <Badge variant={profile.is_active !== false ? 'default' : 'destructive'} className={profile.is_active !== false ? 'bg-green-500' : ''}>
+                          {profile.is_active !== false ? 'Aktif' : 'Pasif'}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{formatDate(profile.created_at)}</TableCell>
+                      <TableCell className="flex items-center space-x-2">
+                        <Select
+                          value={profile.role}
+                          onValueChange={(val) => handleRoleChangeRequest(profile.id, val)}
+                        >
+                          <SelectTrigger className="w-[110px] h-8">
+                            <SelectValue placeholder="Rol" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="teacher">Öğretmen</SelectItem>
+                            <SelectItem value="parent">Veli</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={profile.is_active !== false}
+                            onCheckedChange={() => handleStatusToggle(profile.id, profile.is_active !== false)}
+                          />
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -555,6 +662,24 @@ const UserManagementPage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={roleChangeDialog} onOpenChange={setRoleChangeDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Kullanıcı Rolünü Değiştir</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingRoleChange?.userName ? <strong>{pendingRoleChange.userName}</strong> : 'Bu kullanıcı'} adlı kişinin rolünü <strong>{pendingRoleChange?.role}</strong> olarak değiştirmek istediğinize emin misiniz?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setRoleChangeDialog(false);
+              setPendingRoleChange(null);
+            }}>İptal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRoleChange}>Onayla</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
