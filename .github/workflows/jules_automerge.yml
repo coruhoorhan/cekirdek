@@ -52,8 +52,11 @@ jobs:
             echo "No agent_tasks.json — skipping validation"
           fi
 
-      - name: Mark implemented task done (google-jules only)
-        if: success() && github.event.pull_request.user.login == 'google-jules[bot]'
+      - name: Mark implemented task done (skip magda/* task-authoring PRs)
+        # Jules opens PRs as the repo owner, so match on branch prefix:
+        # magda/* PRs only add tasks to the manifest and must never mark
+        # anything done.
+        if: success() && !startsWith(github.event.pull_request.head.ref, 'magda/')
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           PR_TITLE: ${{ github.event.pull_request.title }}
