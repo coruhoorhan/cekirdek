@@ -58,12 +58,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           git fetch origin "$HEAD_REF"
           git checkout "$HEAD_REF"
           python3 - <<'PY'
-          import json, os, re, unicodedata
+          import json, os, re, unicodedata, subprocess
 
           def norm(s):
               s = unicodedata.normalize("NFKD", s or "")
@@ -71,6 +72,20 @@ jobs:
               return re.sub(r"[^a-z0-9]", "", s.lower())
 
           pr_title = norm(os.environ["PR_TITLE"])
+          # Include PR body in the match; strongest signal that this PR
+          # implements the task. Best-effort.
+          pr_body = ""
+          try:
+              res = subprocess.run(
+                  ["gh", "pr", "view", os.environ["PR_NUMBER"], "--json", "body", "--jq", ".body"],
+                  capture_output=True, text=True, timeout=15,
+              )
+              if res.returncode == 0:
+                  pr_body = norm(res.stdout)
+          except Exception as exc:
+              print(f"Warning: could not fetch PR body: {exc}")
+          match_text = f"{pr_title} {pr_body}"
+
           with open("agent_tasks.json") as f:
               manifest = json.load(f)
           tasks = manifest.get("tasks", [])
@@ -80,12 +95,13 @@ jobs:
                   continue
               tid = norm(str(t.get("id", "")))
               ttl = norm(str(t.get("title", "")))
-              # Match on task id (cekirdek-001) OR normalized title appearing in PR title.
-              if (tid and tid in pr_title) or (ttl and (ttl in pr_title or pr_title in ttl)):
+              # Match on task id (cekirdek-001) OR normalized title appearing
+              # in the PR title/body.
+              if (tid and tid in match_text) or (ttl and (ttl in match_text or match_text.startswith(ttl))):
                   target = t
                   break
           if target is None:
-              print("No matching todo task found for PR title; leaving status unchanged.")
+              print("No matching todo task found for PR; leaving status unchanged.")
           else:
               target["status"] = "done"
               with open("agent_tasks.json", "w") as f:
