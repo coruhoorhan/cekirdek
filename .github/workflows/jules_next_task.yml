@@ -1,0 +1,91 @@
+name: 2. Trigger Next Task
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  next-task:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+       (github.event.pull_request.user.login == 'google-jules[bot]' ||
+        github.event.pull_request.user.login == 'coruhoorhan'))
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read next todo task
+        id: taskinfo
+        run: |
+          python3 - <<'PY'
+          import json, os
+          d = json.load(open("agent_tasks.json"))
+          tasks = d.get("tasks", d) if isinstance(d, dict) else d
+          task = next((t for t in tasks if isinstance(t, dict) and t.get("status") == "todo"), None)
+          target = os.environ.get("GITHUB_REPOSITORY", "")
+          info = {"task": task, "target": target}
+          json.dump(info, open("next_task_info.json", "w"))
+          if task is None:
+              print("no_todo=true")
+          else:
+              print(f"task_title={task.get('title', '(none)')}")
+          PY
+
+      - name: Dispatch Google Jules via Official API
+        run: |
+          python3 - <<'PY'
+          import json
+          info = json.load(open("next_task_info.json"))
+          task, target = info["task"], info["target"]
+
+          if task is None:
+              print("No todo task left in manifest. Nothing to dispatch.")
+              json.dump({"skip": True}, open("jules_payload.json", "w"))
+          else:
+              task_json = json.dumps(task, ensure_ascii=False, indent=2)
+              prompt = (
+                  f"You are an autonomous coding agent operating on the repository {target}.\n\n"
+                  f"TASK (selected by the orchestrator from the task manifest):\n"
+                  f"{task_json}\n\n"
+                  "INSTRUCTIONS:\n"
+                  "1. Explore the repository (React + TypeScript + Vite + Tailwind + Shadcn/ui + Supabase).\n"
+                  "2. Read TASKLIST.md and TEKNOLOJI.md for project conventions.\n"
+                  "3. Implement the ENTIRE task as described (code + integration).\n"
+                  "4. Respect the allowed_paths declared by the task; do not refactor unrelated code.\n"
+                  "5. Run the repository's own build/lint commands to verify before opening the PR.\n"
+                  "6. Open ONE pull request implementing the entire task.\n"
+                  "7. NEVER ask the user anything. Always decide and proceed autonomously.\n\n"
+                  "STRICT RULES:\n"
+                  f"- Work ONLY in the target repository: {target}.\n"
+                  "- Follow existing code style and component conventions (Shadcn/ui).\n"
+                  "- Use the existing Supabase client from src/lib; never hardcode secrets.\n"
+                  "- Do NOT modify .github/workflows/**, package.json dependencies, or deployment files unless the task explicitly requires it.\n"
+                  "- Do NOT add new dependencies unless strictly required; prefer existing ones.\n"
+                  "- If the task has risk 'high' or 'critical', create the PR but do not expect auto-merge without human review."
+              )
+              payload = {
+                  "prompt": prompt,
+                  "sourceContext": {
+                      "source": f"sources/github/{target}",
+                      "githubRepoContext": {"startingBranch": "main"},
+                  },
+                  "automationMode": "AUTO_CREATE_PR",
+                  "title": task.get("title", "Task implementation"),
+              }
+              json.dump(payload, open("jules_payload.json", "w"))
+          PY
+
+          if [ -f jules_payload.json ] && grep -q '"skip"' jules_payload.json; then
+            echo "Skipping dispatch — no todo tasks"
+            exit 0
+          fi
+
+          curl -f 'https://jules.googleapis.com/v1alpha/sessions' \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Goog-Api-Key: ${{ secrets.JULES_API_KEY }}" \
+            -d @jules_payload.json

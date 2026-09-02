@@ -1,0 +1,60 @@
+name: 1. Auto-Validate and Merge Jules PRs
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login == 'google-jules[bot]' ||
+      github.event.pull_request.user.login == 'coruhoorhan'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: TypeScript check
+        run: pnpm tsc --noEmit
+
+      - name: Build
+        run: pnpm build
+
+      - name: Validate agent task manifest
+        run: |
+          if [ -f agent_tasks.json ]; then
+            python3 -c "import json; d=json.load(open('agent_tasks.json')); tasks=d.get('tasks',[]); assert len(tasks)>0; print(f'Manifest valid: {len(tasks)} tasks')"
+          else
+            echo "No agent_tasks.json — skipping validation"
+          fi
+
+      - name: Merge PR
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch

@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "version": 1,
+    "source": "cekirdek TASKLIST.md",
+    "description": "Cekirdek Anaokulu yonetim sistemi gelistirme gorevleri"
+  },
+  "tasks": [
+    {
+      "id": "cekirdek-001",
+      "status": "todo",
+      "area": "admin-panel",
+      "risk": "low",
+      "title": "Admin kullanici ekleme formu ve islevselligi",
+      "description": "Admin panelinde yeni kullanici (Ogretmen, Veli) ekleme formu olustur. Rol atama, gecici sifre olusturma veya e-posta ile davet gonderme ozelliklerini ekle.",
+      "allowed_paths": ["src/pages/admin/", "src/components/", "src/contexts/"],
+      "acceptance": [
+        "Admin panelinde 'Kullanici Ekle' butonu gorunur",
+        "Formda ad, soyad, e-posta, rol (ogretmen/veli) alanlari var",
+        "Gecici sifre otomatik olusturulur veya davet e-postasi gonderilir",
+        "Yeni kullanici basariyla eklendiginde listede gorunur",
+        "Hata durumunda kullaniciya anlamli uyari gosterilir"
+      ]
+    },
+    {
+      "id": "cekirdek-002",
+      "status": "todo",
+      "area": "admin-panel",
+      "risk": "low",
+      "title": "Kullanici bilgilerini duzenleme arayuzu",
+      "description": "Admin panelinde mevcut kullanicilarin bilgilerini duzenleme formu. Her kullanici satirinda 'Duzenle' butonu, tiklaninca form acilir ve kaydedilir.",
+      "allowed_paths": ["src/pages/admin/", "src/components/"],
+      "acceptance": [
+        "Her kullanici satirinda 'Duzenle' butonu var",
+        "Form mevcut bilgileri doldurulmus olarak acilir",
+        "Ad, e-posta, rol, aktif/pasif durumu degistirilebilir",
+        "Kaydet sonrasi degisiklikler listeye yansir",
+        "Iptal butonu formu degisiklik yapmadan kapatir"
+      ]
+    },
+    {
+      "id": "cekirdek-003",
+      "status": "todo",
+      "area": "admin-panel",
+      "risk": "low",
+      "title": "Kullanici rolunu degistirme ve hesap aktif/pasif yapma",
+      "description": "Admin panelinde kullanici rolunu degistirme arayuzu ve hesabi aktiflestirme/pasiflestirme toggle'i. Rol degisikligi onayi sorulmali.",
+      "allowed_paths": ["src/pages/admin/", "src/components/"],
+      "acceptance": [
+        "Kullanici detay sayfasinda rol degistirme dropdown'i var",
+        "Rol degisikligi onay dialog'u ile dogrulanir",
+        "Aktif/Pasif toggle'i calisir",
+        "Pasif kullanicilar sisteme giris yapamaz",
+        "Degisiklikler Supabase'deki profiles tablosuna yansir"
+      ]
+    },
+    {
+      "id": "cekirdek-004",
+      "status": "todo",
+      "area": "admin-panel",
+      "risk": "medium",
+      "title": "Ogretmenleri siniflara atama arayuzu",
+      "description": "Admin panelinde ogretmenleri siniflara atama/detaylandirma arayuzu. Ogretmen listesinden secim yaparak sinifa atama yapilabilmeli.",
+      "allowed_paths": ["src/pages/admin/", "src/pages/classes/", "src/components/"],
+      "acceptance": [
+        "Sinif detay sayfasinda 'Ogretmen Ata' butonu var",
+        "Mevcut ogretmenler listelenir ve secilebilir",
+        "Bir sinifa birden fazla ogretmen atanabilir",
+        "Atama sonrasi ogretmen sinif listesinde gorunur",
+        "Ogretmen sinif degistirebilir veya cikarilabilir"
+      ]
+    },
+    {
+      "id": "cekirdek-005",
+      "status": "todo",
+      "area": "admin-panel",
+      "risk": "medium",
+      "title": "Sinif CRUD: listeleme, olusturma, duzenleme, silme",
+      "description": "Admin panelinde sinif yonetimi modulu. Siniflari listeleme, yeni sinif olusturma (ad, yas grubu, kontenjan), duzenleme ve silme. Sadece bos siniflar silinebilir.",
+      "allowed_paths": ["src/pages/classes/", "src/components/", "src/pages/admin/"],
+      "acceptance": [
+        "Sinif listesi tablosu gorunur (ad, yas grubu, kontenjan, ogrenci sayisi)",
+        "Yeni sinif formu: ad, yas grubu, kontenjan alanlari var",
+        "Sinif duzenleme formu mevcut bilgileri getirir",
+        "Silme: sadece bos siniflar silinebilir (doluysa uyari)",
+        "Tum islemler sonrasi liste guncellenir"
+      ]
+    }
+  ]
+}
