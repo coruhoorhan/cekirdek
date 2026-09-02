@@ -143,6 +143,25 @@
         "Muhasebe kayıtları kalıcı olarak saklanmalı ve uygulama yeniden başlatıldığında veriler korunmalı.",
         "Yeni modül mevcut proje mimarisine uygun şekilde bağımsız olarak eklenmeli ve mevcut testler kırılmamalı."
       ]
+    },
+    {
+      "id": "cekirdek-008",
+      "status": "todo",
+      "title": "Telegram görev oluşturma akışı için otomatik testler ekle",
+      "description": "Telegram botu üzerinden görev oluşturma işlevinin otomatik testlerini yaz. Başarılı ve hatalı senaryoları kapsayacak şekilde Telegram handler'ı ile görev servisinin birlikte çalıştığını doğrula.",
+      "area": "backend",
+      "risk": "low",
+      "allowed_paths": [
+        "src/telegram",
+        "tests/telegram"
+      ],
+      "acceptance": [
+        "Telegram'dan geçerli bir görev oluşturma mesajı gönderildiğinde görev kaydedilir ve kullanıcıya başarılı yanıt döner.",
+        "Eksik veya hatalı görev bilgisi içeren mesajlarda hata mesajı döner ve veritabanına kayıt yapılmaz.",
+        "Telegram handler'ı ile görev servisi arasındaki etkileşim mock'lanarak test edilir.",
+        "Testler izole bir test veritabanı kullanır ve mevcut verileri etkilemez.",
+        "Testler projenin mevcut test komutuyla çalıştırılabilir ve tüm testler başarıyla geçer."
+      ]
     }
   ]
 }
