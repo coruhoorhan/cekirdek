@@ -27,7 +27,7 @@
     },
     {
       "id": "cekirdek-002",
-      "status": "todo",
+      "status": "done",
       "area": "admin-panel",
       "risk": "low",
       "title": "Kullanici bilgilerini duzenleme arayuzu",
