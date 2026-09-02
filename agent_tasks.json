@@ -123,6 +123,26 @@
         "Muhasebe uçları yalnızca yetkili kullanıcıların erişebileceği şekilde korunmalıdır.",
         "Tüm yeni uçlar için otomatik testler yazılmalı ve mevcut testlerin geçtiği doğrulanmalıdır."
       ]
+    },
+    {
+      "id": "cekirdek-007",
+      "status": "todo",
+      "title": "Yeni muhasebe modülü ekle",
+      "description": "Muhasebe modülünü oluştur; gelir/gider kayıtları, cari hesap takibi ve basit bilanço raporu sunan bir yapı kur. Modül mevcut proje mimarisine uygun, test edilebilir ve bağımsız çalışabilir olmalı.",
+      "area": "billing",
+      "risk": "high",
+      "allowed_paths": [
+        "src/modules/muhasebe",
+        "tests/modules/muhasebe",
+        "docs/modules/muhasebe"
+      ],
+      "acceptance": [
+        "Muhasebe modülü için gelir ve gider kayıtları oluşturulabilmeli, listelenebilmeli ve silinebilmeli.",
+        "Cari hesap ekleme, güncelleme ve bakiye görüntüleme işlevleri uçtan uca çalışmalı.",
+        "Belirli bir tarih aralığı için gelir-gider raporu üretilmeli ve toplamlar doğru hesaplanmalı.",
+        "Muhasebe kayıtları kalıcı olarak saklanmalı ve uygulama yeniden başlatıldığında veriler korunmalı.",
+        "Yeni modül mevcut proje mimarisine uygun şekilde bağımsız olarak eklenmeli ve mevcut testler kırılmamalı."
+      ]
     }
   ]
 }
