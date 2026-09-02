@@ -4,9 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, CheckCircle, Clock, Mail, User, Shield } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, Mail, User, Shield, UserPlus, Key } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/hooks/use-toast';
+import { createClient } from '@supabase/supabase-js';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface AuthUser {
   id: string;
@@ -34,11 +38,108 @@ interface Application {
   created_at: string;
 }
 
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const createNewUserClient = () => {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+};
+
 const UserManagementPage: React.FC = () => {
   const [authUsers, setAuthUsers] = useState<AuthUser[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // New user form state
+  const [newUser, setNewUser] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: 'parent',
+  });
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [createdUserTempPassword, setCreatedUserTempPassword] = useState<string | null>(null);
+
+  const generateTempPassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let pass = '';
+    for (let i = 0; i < 12; i++) {
+      pass += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pass;
+  };
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreatingUser(true);
+    setCreatedUserTempPassword(null);
+
+    try {
+      const tempPassword = generateTempPassword();
+      const fullName = `${newUser.firstName} ${newUser.lastName}`.trim();
+
+      const adminClient = createNewUserClient();
+
+      const { data, error } = await adminClient.auth.signUp({
+        email: newUser.email,
+        password: tempPassword,
+        options: {
+          data: {
+            full_name: fullName,
+            role: newUser.role,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      // Ensure profile exists or is created (some setups might have a trigger for this)
+      if (data.user) {
+        // Try inserting into profiles table if needed.
+        // It might conflict if trigger already does it, so we catch errors silently.
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          name: fullName,
+          role: newUser.role,
+        }).select();
+      }
+
+      setCreatedUserTempPassword(tempPassword);
+      toast({
+        title: "Kullanıcı başarıyla oluşturuldu",
+        description: `Yeni kullanıcı (${newUser.email}) sisteme eklendi.`,
+        variant: "default"
+      });
+
+      // Refresh data
+      fetchData();
+
+      // Reset form
+      setNewUser({
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: 'parent',
+      });
+
+    } catch (error: any) {
+      console.error('Kullanıcı oluşturma hatası:', error);
+      toast({
+        title: "Kullanıcı oluşturulamadı",
+        description: error.message || "Bilinmeyen bir hata oluştu",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -186,6 +287,10 @@ const UserManagementPage: React.FC = () => {
             <Mail className="mr-2 h-4 w-4" />
             Başvurular ({applications.length})
           </TabsTrigger>
+          <TabsTrigger value="add-user">
+            <UserPlus className="mr-2 h-4 w-4" />
+            Kullanıcı Ekle
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="auth-users">
@@ -302,6 +407,106 @@ const UserManagementPage: React.FC = () => {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="add-user">
+          <Card>
+            <CardHeader>
+              <CardTitle>Yeni Kullanıcı Ekle</CardTitle>
+              <CardDescription>
+                Sisteme yeni bir öğretmen veya veli ekleyin. Otomatik olarak geçici bir şifre oluşturulacaktır.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleCreateUser} className="space-y-4 max-w-md">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">Ad</Label>
+                    <Input
+                      id="firstName"
+                      value={newUser.firstName}
+                      onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                      required
+                      disabled={isCreatingUser}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Soyad</Label>
+                    <Input
+                      id="lastName"
+                      value={newUser.lastName}
+                      onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                      required
+                      disabled={isCreatingUser}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-posta</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                    required
+                    disabled={isCreatingUser}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="role">Rol</Label>
+                  <Select
+                    value={newUser.role}
+                    onValueChange={(val) => setNewUser({...newUser, role: val})}
+                    disabled={isCreatingUser}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Rol seçin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="teacher">Öğretmen</SelectItem>
+                      <SelectItem value="parent">Veli</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button type="submit" disabled={isCreatingUser} className="w-full">
+                  {isCreatingUser ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Oluşturuluyor...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="mr-2 h-4 w-4" />
+                      Kullanıcı Oluştur
+                    </>
+                  )}
+                </Button>
+              </form>
+
+              {createdUserTempPassword && (
+                <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
+                  <h4 className="font-medium text-green-900 mb-2 flex items-center">
+                    <CheckCircle className="mr-2 h-5 w-5" />
+                    Kullanıcı Başarıyla Oluşturuldu
+                  </h4>
+                  <div className="text-sm text-green-800 space-y-2">
+                    <p>Kullanıcı giriş yapabilmesi için aşağıdaki geçici şifreyi kullanabilir:</p>
+                    <div className="flex items-center space-x-2 bg-white p-2 rounded border border-green-100">
+                      <Key className="h-4 w-4 text-green-600" />
+                      <span className="font-mono font-medium text-lg">{createdUserTempPassword}</span>
+                    </div>
+                    <p className="text-xs text-green-700 mt-2">
+                      Lütfen bu şifreyi güvenli bir şekilde kullanıcı ile paylaşın. İlk girişte şifre değiştirme istenebilir.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
