@@ -469,7 +469,6 @@ const UserManagementPage: React.FC = () => {
                     <SelectContent>
                       <SelectItem value="teacher">Öğretmen</SelectItem>
                       <SelectItem value="parent">Veli</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
