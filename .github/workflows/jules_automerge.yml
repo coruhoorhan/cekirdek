@@ -135,5 +135,10 @@ jobs:
             echo "PR already merged; nothing to do."
             exit 0
           fi
+          # gh switches back to the default branch after merging
+          # (--delete-branch). The job checkout is single-ref, so
+          # origin/main is missing locally and that switch fails, marking
+          # the run as failure even though the merge itself succeeded.
+          git fetch origin main >/dev/null 2>&1 || true
           gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch
           echo "PR merged successfully."# task done fix
