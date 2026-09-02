@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AlertCircle, CheckCircle, Clock, Mail, User, Shield, UserPlus, Key } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from '@/hooks/use-toast';
@@ -11,6 +12,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { sendPasswordSetupEmail } from '@/lib/emailService';
 
 interface AuthUser {
   id: string;
@@ -66,6 +68,7 @@ const UserManagementPage: React.FC = () => {
   });
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [createdUserTempPassword, setCreatedUserTempPassword] = useState<string | null>(null);
+  const [creationMethod, setCreationMethod] = useState<'temp_password' | 'invite_email'>('temp_password');
 
   const generateTempPassword = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
@@ -111,12 +114,31 @@ const UserManagementPage: React.FC = () => {
         }).select();
       }
 
-      setCreatedUserTempPassword(tempPassword);
-      toast({
-        title: "Kullanıcı başarıyla oluşturuldu",
-        description: `Yeni kullanıcı (${newUser.email}) sisteme eklendi.`,
-        variant: "default"
-      });
+      if (creationMethod === 'invite_email') {
+        const { success, error: emailError } = await sendPasswordSetupEmail(newUser.email, fullName);
+        if (success) {
+          toast({
+            title: "Kullanıcı başarıyla oluşturuldu",
+            description: `Yeni kullanıcı (${newUser.email}) sisteme eklendi ve şifre belirleme e-postası gönderildi.`,
+            variant: "default"
+          });
+        } else {
+          // If email fails, fallback to showing the temp password
+          setCreatedUserTempPassword(tempPassword);
+          toast({
+            title: "Kullanıcı oluşturuldu ancak e-posta gönderilemedi",
+            description: `Kullanıcı eklendi ancak davet e-postası gönderilemedi: ${emailError}. Lütfen geçici şifreyi kullanıcıya iletin.`,
+            variant: "destructive"
+          });
+        }
+      } else {
+        setCreatedUserTempPassword(tempPassword);
+        toast({
+          title: "Kullanıcı başarıyla oluşturuldu",
+          description: `Yeni kullanıcı (${newUser.email}) sisteme eklendi.`,
+          variant: "default"
+        });
+      }
 
       // Refresh data
       fetchData();
@@ -471,6 +493,29 @@ const UserManagementPage: React.FC = () => {
                       <SelectItem value="parent">Veli</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-3 pt-2 pb-4">
+                  <Label>Kullanıcı Bilgilendirme Yöntemi</Label>
+                  <RadioGroup
+                    value={creationMethod}
+                    onValueChange={(val) => setCreationMethod(val as 'temp_password' | 'invite_email')}
+                    disabled={isCreatingUser}
+                    className="space-y-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="temp_password" id="temp_password" />
+                      <Label htmlFor="temp_password" className="font-normal cursor-pointer">
+                        Geçici şifre oluştur (Ekranda gösterilir)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="invite_email" id="invite_email" />
+                      <Label htmlFor="invite_email" className="font-normal cursor-pointer">
+                        Davet e-postası gönder (Kullanıcı şifresini kendi belirler)
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
 
                 <Button type="submit" disabled={isCreatingUser} className="w-full">
