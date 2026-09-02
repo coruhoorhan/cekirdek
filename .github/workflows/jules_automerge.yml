@@ -52,9 +52,69 @@ jobs:
             echo "No agent_tasks.json — skipping validation"
           fi
 
+      - name: Mark implemented task done (google-jules only)
+        if: success() && github.event.pull_request.user.login == 'google-jules[bot]'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$HEAD_REF"
+          git checkout "$HEAD_REF"
+          python3 - <<'PY'
+          import json, os, re, unicodedata
+
+          def norm(s):
+              s = unicodedata.normalize("NFKD", s or "")
+              s = s.encode("ascii", "ignore").decode()
+              return re.sub(r"[^a-z0-9]", "", s.lower())
+
+          pr_title = norm(os.environ["PR_TITLE"])
+          with open("agent_tasks.json") as f:
+              manifest = json.load(f)
+          tasks = manifest.get("tasks", [])
+          target = None
+          for t in tasks:
+              if not isinstance(t, dict) or t.get("status") != "todo":
+                  continue
+              tid = norm(str(t.get("id", "")))
+              ttl = norm(str(t.get("title", "")))
+              # Match on task id (cekirdek-001) OR normalized title appearing in PR title.
+              if (tid and tid in pr_title) or (ttl and (ttl in pr_title or pr_title in ttl)):
+                  target = t
+                  break
+          if target is None:
+              print("No matching todo task found for PR title; leaving status unchanged.")
+          else:
+              target["status"] = "done"
+              with open("agent_tasks.json", "w") as f:
+                  json.dump(manifest, f, ensure_ascii=False, indent=2)
+              print(f"Marked {target.get('id')} as done")
+          PY
+          if git diff --quiet -- agent_tasks.json; then
+            echo "No manifest change to commit."
+          else
+            git config user.name "magda-loop"
+            git config user.email "magda-loop@users.noreply.github.com"
+            git add agent_tasks.json
+            git commit -m "chore: mark implemented task done"
+            git push origin "$HEAD_REF"
+          fi
+
       - name: Merge PR
         if: success()
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          STATE="$(gh pr view ${{ github.event.pull_request.number }} --json state,isDraft --jq '{state,isDraft}' 2>/dev/null || echo '{}')"
+          if echo "$STATE" | grep -q '"isDraft":true'; then
+            echo "PR is draft; skipping merge."
+            exit 0
+          fi
+          if echo "$STATE" | grep -q '"state":"MERGED"'; then
+            echo "PR already merged; nothing to do."
+            exit 0
+          fi
           gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch
+          echo "PR merged successfully."
