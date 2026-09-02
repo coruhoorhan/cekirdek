@@ -12,7 +12,11 @@
       "risk": "low",
       "title": "Admin kullanici ekleme formu ve islevselligi",
       "description": "Admin panelinde yeni kullanici (Ogretmen, Veli) ekleme formu olustur. Rol atama, gecici sifre olusturma veya e-posta ile davet gonderme ozelliklerini ekle.",
-      "allowed_paths": ["src/pages/admin/", "src/components/", "src/contexts/"],
+      "allowed_paths": [
+        "src/pages/admin/",
+        "src/components/",
+        "src/contexts/"
+      ],
       "acceptance": [
         "Admin panelinde 'Kullanici Ekle' butonu gorunur",
         "Formda ad, soyad, e-posta, rol (ogretmen/veli) alanlari var",
@@ -28,7 +32,10 @@
       "risk": "low",
       "title": "Kullanici bilgilerini duzenleme arayuzu",
       "description": "Admin panelinde mevcut kullanicilarin bilgilerini duzenleme formu. Her kullanici satirinda 'Duzenle' butonu, tiklaninca form acilir ve kaydedilir.",
-      "allowed_paths": ["src/pages/admin/", "src/components/"],
+      "allowed_paths": [
+        "src/pages/admin/",
+        "src/components/"
+      ],
       "acceptance": [
         "Her kullanici satirinda 'Duzenle' butonu var",
         "Form mevcut bilgileri doldurulmus olarak acilir",
@@ -44,7 +51,10 @@
       "risk": "low",
       "title": "Kullanici rolunu degistirme ve hesap aktif/pasif yapma",
       "description": "Admin panelinde kullanici rolunu degistirme arayuzu ve hesabi aktiflestirme/pasiflestirme toggle'i. Rol degisikligi onayi sorulmali.",
-      "allowed_paths": ["src/pages/admin/", "src/components/"],
+      "allowed_paths": [
+        "src/pages/admin/",
+        "src/components/"
+      ],
       "acceptance": [
         "Kullanici detay sayfasinda rol degistirme dropdown'i var",
         "Rol degisikligi onay dialog'u ile dogrulanir",
@@ -60,7 +70,11 @@
       "risk": "medium",
       "title": "Ogretmenleri siniflara atama arayuzu",
       "description": "Admin panelinde ogretmenleri siniflara atama/detaylandirma arayuzu. Ogretmen listesinden secim yaparak sinifa atama yapilabilmeli.",
-      "allowed_paths": ["src/pages/admin/", "src/pages/classes/", "src/components/"],
+      "allowed_paths": [
+        "src/pages/admin/",
+        "src/pages/classes/",
+        "src/components/"
+      ],
       "acceptance": [
         "Sinif detay sayfasinda 'Ogretmen Ata' butonu var",
         "Mevcut ogretmenler listelenir ve secilebilir",
@@ -76,13 +90,38 @@
       "risk": "medium",
       "title": "Sinif CRUD: listeleme, olusturma, duzenleme, silme",
       "description": "Admin panelinde sinif yonetimi modulu. Siniflari listeleme, yeni sinif olusturma (ad, yas grubu, kontenjan), duzenleme ve silme. Sadece bos siniflar silinebilir.",
-      "allowed_paths": ["src/pages/classes/", "src/components/", "src/pages/admin/"],
+      "allowed_paths": [
+        "src/pages/classes/",
+        "src/components/",
+        "src/pages/admin/"
+      ],
       "acceptance": [
         "Sinif listesi tablosu gorunur (ad, yas grubu, kontenjan, ogrenci sayisi)",
         "Yeni sinif formu: ad, yas grubu, kontenjan alanlari var",
         "Sinif duzenleme formu mevcut bilgileri getirir",
         "Silme: sadece bos siniflar silinebilir (doluysa uyari)",
         "Tum islemler sonrasi liste guncellenir"
+      ]
+    },
+    {
+      "id": "cekirdek-006",
+      "status": "todo",
+      "title": "Yeni muhasebe modülü ekle",
+      "description": "Muhasebe işlemlerini yönetmek için yeni bir modül ekle. Gelir/gider kayıtları, cari hesaplar, fatura ve ödeme takibi gibi temel muhasebe fonksiyonlarını içermelidir.",
+      "area": "billing",
+      "risk": "high",
+      "allowed_paths": [
+        "src/accounting",
+        "tests/accounting",
+        "migrations/accounting"
+      ],
+      "acceptance": [
+        "Muhasebe modülü için gelir, gider, cari hesap ve fatura veri modelleri tanımlanmalı ve migration ile veritabanına yansıtılmalıdır.",
+        "Gelir/gider kaydı ekleme, listeleme, güncelleme ve silme işlemleri API uçları üzerinden kullanılabilmelidir.",
+        "Cari hesap bakiyeleri her işlemden sonra doğru şekilde güncellenmelidir.",
+        "Fatura ve ödeme kayıtları ilişkilendirilebilmeli ve ödenmemiş faturalar listelenebilmelidir.",
+        "Muhasebe uçları yalnızca yetkili kullanıcıların erişebileceği şekilde korunmalıdır.",
+        "Tüm yeni uçlar için otomatik testler yazılmalı ve mevcut testlerin geçtiği doğrulanmalıdır."
       ]
     }
   ]
