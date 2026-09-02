@@ -162,6 +162,25 @@
         "Testler izole bir test veritabanı kullanır ve mevcut verileri etkilemez.",
         "Testler projenin mevcut test komutuyla çalıştırılabilir ve tüm testler başarıyla geçer."
       ]
+    },
+    {
+      "id": "cekirdek-009",
+      "status": "todo",
+      "title": "Köprü test görevi ekle",
+      "description": "Bu görev, köprü modülünün çalıştığını doğrulamak için basit bir test endpoint'i ekler. Endpoint, 'pong' döndüren bir GET isteği alır. İlgili test dosyası da oluşturulmalıdır.",
+      "area": "backend",
+      "risk": "low",
+      "allowed_paths": [
+        "backend/src/routes/bridge-test.ts",
+        "backend/tests/bridge-test.test.ts"
+      ],
+      "acceptance": [
+        "Yeni bir route dosyası oluşturulmalı ve GET /bridge-test yolunu tanımlamalı.",
+        "GET /bridge-test isteği 'pong' yanıtı döndürmeli.",
+        "Yanıt HTTP 200 status kodu ile gelmeli.",
+        "İlgili test dosyası oluşturulmalı ve testler çalıştırıldığında hata vermemeli.",
+        "Test dosyası, endpoint'in doğru yanıt verdiğini doğrulamalı."
+      ]
     }
   ]
 }
