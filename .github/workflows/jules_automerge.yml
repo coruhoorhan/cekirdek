@@ -133,4 +133,4 @@ jobs:
             exit 0
           fi
           gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch
-          echo "PR merged successfully."
+          echo "PR merged successfully."# task done fix
