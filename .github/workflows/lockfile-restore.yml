@@ -5,6 +5,7 @@ on:
     branches: [main, feat/admin-panel-skeleton]
   pull_request:
     branches: [main, feat/admin-panel-skeleton]
+    types: [opened, synchronize, reopened]
 
 jobs:
   restore-lockfile:
