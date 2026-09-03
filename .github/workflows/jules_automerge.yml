@@ -3,6 +3,7 @@ name: 1. Auto-Validate and Merge Jules PRs
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -140,5 +141,18 @@ jobs:
           # origin/main is missing locally and that switch fails, marking
           # the run as failure even though the merge itself succeeded.
           git fetch origin main >/dev/null 2>&1 || true
-          gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch
+          # Concurrent pushes to the PR head (mark-done commit, lockfile
+          # restore) can move the merge base between checks and merge,
+          # failing with "Base branch was modified". Retry with refresh.
+          for i in 1 2 3 4 5; do
+            if gh pr merge ${{ github.event.pull_request.number }} --merge --delete-branch; then
+              echo "PR merged successfully."
+              exit 0
+            fi
+            echo "merge attempt $i failed; retrying in 15s..."
+            sleep 15
+            git fetch origin main >/dev/null 2>&1 || true
+          done
+          echo "PR merge failed after retries."
+          exit 1
           echo "PR merged successfully."# task done fix
