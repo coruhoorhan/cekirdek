@@ -65,7 +65,7 @@
     },
     {
       "id": "cekirdek-004",
-      "status": "todo",
+      "status": "done",
       "area": "admin-panel",
       "risk": "medium",
       "title": "Ogretmenleri siniflara atama arayuzu",
