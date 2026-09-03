@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Info, Settings, LayoutDashboard, Newspaper, Image, Users, Phone, UserCheck, Database, Mail } from 'lucide-react'; // İkonlar
+import { Home, Info, Settings, LayoutDashboard, Newspaper, Image, Users, Phone, UserCheck, Database, Mail, BookOpen } from 'lucide-react'; // İkonlar
 
 const AdminSidebar: React.FC = () => {
   const navItems = [
@@ -13,6 +13,7 @@ const AdminSidebar: React.FC = () => {
     { to: '/admin/education-settings', icon: <Settings size={20} />, label: 'Eğitim Yönetimi' },
     { to: '/admin/gallery-settings', icon: <Image size={20} />, label: 'Galeri Yönetimi' },
     { to: '/admin/news-settings', icon: <Newspaper size={20} />, label: 'Haberler Yönetimi' },
+    { to: '/admin/classes', icon: <BookOpen size={20} />, label: 'Sınıf Yönetimi' },
     { to: '/admin/teachers-settings', icon: <Users size={20} />, label: 'Öğretmenler Yönetimi' },
     { to: '/admin/contact-settings', icon: <Phone size={20} />, label: 'İletişim Yönetimi' },
   ];

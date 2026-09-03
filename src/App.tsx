@@ -33,6 +33,7 @@ import ContactPageSettings from './pages/admin/ContactPageSettings';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import DataConsistencyPage from '@/pages/admin/DataConsistencyPage';
 import EmailVerificationPage from '@/pages/admin/EmailVerificationPage';
+import ClassesPage from '@/pages/classes/ClassesPage';
 
 // Auth components
 import { AuthProvider } from './contexts/AuthContext';
@@ -108,6 +109,7 @@ function App() {
           <Route path="user-management" element={<UserManagementPage />} />
           <Route path="data-consistency" element={<DataConsistencyPage />} />
           <Route path="email-verification" element={<EmailVerificationPage />} />
+          <Route path="classes" element={<ClassesPage />} />
         </Route>
       </Routes>
       </AuthProvider>
