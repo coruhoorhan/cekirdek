@@ -46,7 +46,7 @@
     },
     {
       "id": "cekirdek-003",
-      "status": "todo",
+      "status": "done",
       "area": "admin-panel",
       "risk": "low",
       "title": "Kullanici rolunu degistirme ve hesap aktif/pasif yapma",

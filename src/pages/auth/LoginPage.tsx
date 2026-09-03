@@ -85,16 +85,10 @@ const LoginPage: React.FC = () => {
       }
 
       if (authData.user) {
-        // Başarılı giriş logu
-        logSecurityEvent('login_success', {
-          userId: authData.user.id,
-          email: data.email,
-        });
-
         // Kullanıcının rolünü profiller tablosundan al
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, is_active')
           .eq('id', authData.user.id)
           .single();
 
@@ -104,6 +98,18 @@ const LoginPage: React.FC = () => {
           await supabase.auth.signOut(); // Hata durumunda çıkış yap
           return;
         }
+
+        if (profileData?.is_active === false) {
+          setError('email', { message: 'Hesabınız pasife alınmıştır.' });
+          await supabase.auth.signOut(); // Çıkış yap
+          return;
+        }
+
+        // Başarılı giriş logu
+        logSecurityEvent('login_success', {
+          userId: authData.user.id,
+          email: data.email,
+        });
 
         // Role göre yönlendirme yap
         const userRole = profileData?.role;
