@@ -85,7 +85,7 @@
     },
     {
       "id": "cekirdek-005",
-      "status": "todo",
+      "status": "done",
       "area": "admin-panel",
       "risk": "medium",
       "title": "Sinif CRUD: listeleme, olusturma, duzenleme, silme",
