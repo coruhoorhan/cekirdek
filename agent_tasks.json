@@ -105,7 +105,7 @@
     },
     {
       "id": "cekirdek-006",
-      "status": "todo",
+      "status": "done",
       "title": "Yeni muhasebe modülü ekle",
       "description": "Muhasebe işlemlerini yönetmek için yeni bir modül ekle. Gelir/gider kayıtları, cari hesaplar, fatura ve ödeme takibi gibi temel muhasebe fonksiyonlarını içermelidir.",
       "area": "billing",
